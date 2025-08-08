@@ -548,7 +548,7 @@
         "dependencies": [
           4
         ],
-        "status": "pending",
+        "status": "in-progress",
         "subtasks": [
           {
             "id": 1,
@@ -556,7 +556,7 @@
             "description": "Create a service that analyzes content diversity across different dimensions including topics, sources, and perspectives. This service will calculate diversity scores for content items relative to a user's recent feed history.",
             "dependencies": [],
             "details": "class ContentDiversityAnalyzer {\n  constructor(contentRepository, taxonomyService) {\n    this.contentRepository = contentRepository;\n    this.taxonomyService = taxonomyService;\n  }\n\n  async calculateDiversityScores(candidateItems, recentFeedHistory) {\n    const diversityScores = [];\n    \n    // Extract features from recent history\n    const historicalFeatures = await this.extractContentFeatures(recentFeedHistory);\n    const historicalTopics = this.aggregateTopics(historicalFeatures);\n    const historicalSources = this.aggregateSources(historicalFeatures);\n    const historicalPerspectives = this.aggregatePerspectives(historicalFeatures);\n    \n    // Calculate diversity score for each candidate item\n    for (const item of candidateItems) {\n      const itemFeatures = await this.extractContentFeatures([item]);\n      \n      // Calculate topic diversity (how different is this topic from recent history)\n      const topicDiversity = this.calculateTopicDiversity(itemFeatures[0].topics, historicalTopics);\n      \n      // Calculate source diversity\n      const sourceDiversity = this.calculateSourceDiversity(itemFeatures[0].source, historicalSources);\n      \n      // Calculate perspective diversity\n      const perspectiveDiversity = this.calculatePerspectiveDiversity(itemFeatures[0].perspective, historicalPerspectives);\n      \n      // Combine into overall diversity score (weighted average)\n      const overallDiversity = (topicDiversity * 0.4) + (sourceDiversity * 0.3) + (perspectiveDiversity * 0.3);\n      \n      diversityScores.push(overallDiversity);\n    }\n    \n    return diversityScores;\n  }\n  \n  async extractContentFeatures(contentItems) {\n    // Extract topics, sources, and other features from content items\n    // This might involve calling content analysis services or using pre-computed metadata\n    return contentItems.map(item => ({\n      id: item.id,\n      topics: item.topics || [],\n      source: item.source,\n      perspective: item.perspective || 'neutral',\n      timestamp: item.createdAt\n    }));\n  }\n  \n  // Helper methods for diversity calculations\n  calculateTopicDiversity(itemTopics, historicalTopics) {\n    // Calculate how different this item's topics are from historical distribution\n    // Higher score = more diverse/different from what user has seen recently\n    // Implementation could use Jaccard distance or other similarity metrics\n  }\n  \n  // Similar methods for source and perspective diversity\n}",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Unit test each diversity calculation method with various scenarios (completely different content, similar content, identical content). Test with mock user histories of varying diversity. Verify that the diversity scores correctly identify content that adds variety to a feed."
           },
           {
@@ -884,7 +884,7 @@
     ],
     "metadata": {
       "created": "2025-08-08T09:50:36.213Z",
-      "updated": "2025-08-08T12:58:53.911Z",
+      "updated": "2025-08-08T13:29:46.722Z",
       "description": "Tasks for master context"
     }
   }
