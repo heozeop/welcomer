@@ -755,7 +755,7 @@
           6,
           7
         ],
-        "status": "in-progress",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -808,7 +808,7 @@
               "12.4"
             ],
             "details": "Extend the personalizeItems method to include diversity controls that prevent too many similar items from dominating the feed. Implement a time decay factor that gradually reduces the score of older content. Add a randomization factor to occasionally introduce new content types or sources that the user hasn't interacted with before. Create configuration options to adjust the balance between personalization and diversity.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test with simulated user profiles that have strong preferences for specific content. Verify that the resulting feed still contains diverse content types and sources. Test that newer content generally ranks higher than older content with similar relevance scores."
           }
         ]
@@ -884,7 +884,7 @@
     ],
     "metadata": {
       "created": "2025-08-08T09:50:36.213Z",
-      "updated": "2025-08-08T21:52:58.523Z",
+      "updated": "2025-08-08T23:16:37.555Z",
       "description": "Tasks for master context"
     }
   }

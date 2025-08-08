@@ -66,7 +66,16 @@ data class PersonalizationConfig(
     val maxSameTopicRatio: Double = 0.4,     // Max 40% from same topic
     val maxSameSourceRatio: Double = 0.3,    // Max 30% from same source
     val historyLookbackDays: Int = 30,       // Days of history to consider
-    val contextualBoostEnabled: Boolean = true
+    val contextualBoostEnabled: Boolean = true,
+    // Enhanced diversity and freshness controls
+    val enableAdvancedDiversity: Boolean = true,
+    val explorationFactor: Double = 0.15,    // Factor for content exploration
+    val freshnessDecayFactor: Double = 0.8,  // Temporal decay factor for freshness
+    val diversityBoostThreshold: Double = 0.6, // Threshold for diversity boost
+    val antiFilterBubbleStrength: Double = 0.2, // Strength of anti-filter-bubble mechanisms
+    val noveltyReward: Double = 0.1,         // Reward for showing novel content
+    val temporalDiversityWindow: Double = 24.0, // Hours for temporal diversity check
+    val serendipityFactor: Double = 0.05     // Factor for serendipitous content discovery
 )
 
 /**
@@ -535,6 +544,23 @@ class DefaultFeedPersonalizationService(
         items: List<PersonalizedItem>,
         config: PersonalizationConfig
     ): List<PersonalizedItem> {
+        if (!config.enableDiversityControls) return items
+        
+        // Apply basic diversity controls first
+        val basicDiversityItems = applyBasicDiversityControls(items, config)
+        
+        // Apply advanced diversity controls if enabled
+        return if (config.enableAdvancedDiversity) {
+            applyAdvancedDiversityControls(basicDiversityItems, config)
+        } else {
+            basicDiversityItems
+        }
+    }
+    
+    private fun applyBasicDiversityControls(
+        items: List<PersonalizedItem>,
+        config: PersonalizationConfig
+    ): List<PersonalizedItem> {
         // Sort by current score
         val sortedItems = items.sortedByDescending { it.finalScore }
         val totalItems = sortedItems.size
@@ -579,6 +605,132 @@ class DefaultFeedPersonalizationService(
                     diversityAdjustment = diversityAdjustment
                 )
             )
+        }
+    }
+    
+    private fun applyAdvancedDiversityControls(
+        items: List<PersonalizedItem>,
+        config: PersonalizationConfig
+    ): List<PersonalizedItem> {
+        val processedItems = items.toMutableList()
+        
+        // Apply anti-filter-bubble mechanisms
+        processedItems.forEachIndexed { index, item ->
+            var additionalDiversityAdjustment = 0.0
+            
+            // 1. Novelty reward - boost items from topics/sources user rarely engages with
+            if (item.personalizationFactors.topicRelevance < config.diversityBoostThreshold ||
+                item.personalizationFactors.sourceAffinity < config.diversityBoostThreshold) {
+                additionalDiversityAdjustment += config.noveltyReward
+            }
+            
+            // 2. Serendipity factor - randomly boost some lower-scored items for exploration
+            if (kotlin.random.Random.nextDouble() < config.serendipityFactor && 
+                item.personalizationFactors.personalizedMultiplier < 1.5) {
+                additionalDiversityAdjustment += config.explorationFactor
+            }
+            
+            // 3. Anti-filter-bubble boost - reduce dominance of highly personalized content
+            if (item.personalizationFactors.personalizedMultiplier > 2.0) {
+                val filterBubblePenalty = -(config.antiFilterBubbleStrength * 
+                    (item.personalizationFactors.personalizedMultiplier - 2.0))
+                additionalDiversityAdjustment += filterBubblePenalty
+            }
+            
+            // 4. Temporal diversity - boost items from different time periods
+            val temporalDiversityBoost = calculateTemporalDiversityBoost(item, items, config)
+            additionalDiversityAdjustment += temporalDiversityBoost
+            
+            // Apply additional diversity adjustments
+            val newDiversityAdjustment = item.personalizationFactors.diversityAdjustment + additionalDiversityAdjustment
+            val newFinalScore = item.finalScore * (1.0 + additionalDiversityAdjustment)
+            
+            processedItems[index] = item.copy(
+                finalScore = newFinalScore,
+                personalizationFactors = item.personalizationFactors.copy(
+                    diversityAdjustment = newDiversityAdjustment
+                )
+            )
+        }
+        
+        // Apply freshness controls with sophisticated temporal decay
+        return applyAdvancedFreshnessControls(processedItems, config)
+    }
+    
+    private fun calculateTemporalDiversityBoost(
+        currentItem: PersonalizedItem,
+        allItems: List<PersonalizedItem>,
+        config: PersonalizationConfig
+    ): Double {
+        val currentTime = Instant.now()
+        val windowHours = config.temporalDiversityWindow
+        val currentItemAge = ChronoUnit.HOURS.between(currentItem.item.createdAt, currentTime).toDouble()
+        
+        // Count items in the same temporal window
+        val itemsInWindow = allItems.count { item ->
+            val itemAge = ChronoUnit.HOURS.between(item.item.createdAt, currentTime).toDouble()
+            abs(itemAge - currentItemAge) <= windowHours
+        }
+        
+        // Boost items from underrepresented time periods
+        val representation = itemsInWindow.toDouble() / allItems.size
+        return if (representation < 0.3) { // Less than 30% representation
+            config.explorationFactor * (1.0 - representation) // Stronger boost for more isolated items
+        } else {
+            0.0
+        }
+    }
+    
+    private fun applyAdvancedFreshnessControls(
+        items: List<PersonalizedItem>,
+        config: PersonalizationConfig
+    ): List<PersonalizedItem> {
+        val now = Instant.now()
+        
+        return items.map { item ->
+            val ageInHours = ChronoUnit.HOURS.between(item.item.createdAt, now).toDouble()
+            
+            // Sophisticated freshness calculation with multiple decay functions
+            val freshnessScore = calculateSophisticatedFreshnessScore(ageInHours, config)
+            
+            // Apply freshness boost based on content age and user preferences
+            val freshnessAdjustment = (freshnessScore - 0.5) * config.freshnessDecayFactor * 0.3
+            
+            val adjustedScore = item.finalScore * (1.0 + freshnessAdjustment)
+            
+            item.copy(
+                finalScore = adjustedScore,
+                personalizationFactors = item.personalizationFactors.copy(
+                    recencyBoost = item.personalizationFactors.recencyBoost + freshnessAdjustment
+                )
+            )
+        }
+    }
+    
+    private fun calculateSophisticatedFreshnessScore(ageInHours: Double, config: PersonalizationConfig): Double {
+        // Multi-phase freshness decay:
+        // 1. Very recent (0-2 hours): High boost
+        // 2. Recent (2-24 hours): Moderate boost  
+        // 3. Day old (24-168 hours): Gradual decay
+        // 4. Week+ old: Significant decay with long tail
+        
+        return when {
+            ageInHours <= 2.0 -> {
+                // Very fresh content gets maximum boost
+                0.9 + 0.1 * exp(-ageInHours / 2.0)
+            }
+            ageInHours <= 24.0 -> {
+                // Recent content with gradual decay
+                0.7 + 0.2 * exp(-(ageInHours - 2.0) / 12.0)
+            }
+            ageInHours <= config.recencyDecayHours -> {
+                // Standard exponential decay
+                0.5 * exp(-(ageInHours - 24.0) / (config.recencyDecayHours - 24.0))
+            }
+            else -> {
+                // Old content with long tail for evergreen content
+                max(0.1, 0.3 * exp(-ageInHours / (config.recencyDecayHours * 2.0)))
+            }
         }
     }
 
