@@ -18,7 +18,7 @@ repositories {
     mavenCentral()
 }
 
-extra["springCloudVersion"] = "2025.0.0"
+extra["springCloudVersion"] = "2024.0.1"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-jooq")
@@ -31,20 +31,26 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
 
     // JOOQ dependencies
-    implementation("org.jooq:jooq:3.19.3")
+    implementation("org.jooq:jooq:3.20.0")
 
     // Exposed
-    implementation("org.jetbrains.exposed:exposed-core:0.44.1")
-    implementation("org.jetbrains.exposed:exposed-dao:0.44.1")
-    implementation("org.jetbrains.exposed:exposed-java-time:0.44.1")
+    implementation("org.jetbrains.exposed:exposed-core:0.57.0")
+    implementation("org.jetbrains.exposed:exposed-dao:0.57.0")
+    implementation("org.jetbrains.exposed:exposed-java-time:0.57.0")
 
     // grpc
-    implementation("io.grpc:grpc-netty-shaded:1.58.0")
-    implementation("io.grpc:grpc-stub:1.58.0")
-    implementation("io.grpc:grpc-kotlin-stub:1.4.0")
+    implementation("io.grpc:grpc-netty-shaded:1.69.0")
+    implementation("io.grpc:grpc-stub:1.69.0")
+    implementation("io.grpc:grpc-kotlin-stub:1.4.1")
 
     // spring 통합
-    implementation("net.devh:grpc-spring-boot-starter:2.15.0.RELEASE")
+    implementation("net.devh:grpc-spring-boot-starter:3.1.0.RELEASE")
+
+    // Content processing dependencies
+    implementation("org.jsoup:jsoup:1.18.3")
+    implementation("org.apache.tika:tika-core:3.0.0")
+    implementation("org.springframework.kafka:spring-kafka")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("com.mysql:mysql-connector-j")
