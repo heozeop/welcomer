@@ -1,0 +1,283 @@
+# Task ID: 2
+# Title: Design Data Models
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Define the core data models required for the SNS feed system, including user profiles, content items, engagement metrics, and feed algorithms.
+# Details:
+Create comprehensive data models with the following components:
+1. User model (profile data, preferences, social graph)
+2. Content model (posts, media, metadata)
+3. Engagement model (likes, comments, shares, views)
+4. Algorithm parameters model (weights, personalization factors)
+5. Feed composition model (structure, pagination, caching)
+
+For each model, define:
+- Database schema (SQL or NoSQL as appropriate)
+- Field definitions with data types
+- Relationships and foreign keys
+- Indexing strategy
+- Data validation rules
+
+Consider using a document database for content and a graph database for social relationships if appropriate.
+
+# Test Strategy:
+Create test data sets that validate the data models. Verify that the models support all required queries with acceptable performance. Test edge cases like very active users or viral content. Review with data engineers to ensure scalability.
+
+# Subtasks:
+## 1. Design User Profile and Social Graph Model [pending]
+### Dependencies: None
+### Description: Define the database schema for user profiles and social relationships, including all necessary fields, data types, and relationships.
+### Details:
+Create a comprehensive user model with:
+- Core profile fields: user_id (primary key), username, email, password_hash, full_name, bio, profile_image_url, created_at, updated_at
+- Extended profile: location, website, birthday, preferences (JSON/document for flexibility)
+- Social graph: Define relationships table with user_id, followed_user_id, relationship_type, created_at
+- Privacy settings: visibility_settings (JSON/document)
+
+For SQL implementation:
+```sql
+CREATE TABLE users (
+  user_id UUID PRIMARY KEY,
+  username VARCHAR(30) UNIQUE NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  full_name VARCHAR(100) NOT NULL,
+  bio TEXT,
+  profile_image_url VARCHAR(255),
+  preferences JSONB,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE relationships (
+  relationship_id UUID PRIMARY KEY,
+  follower_id UUID NOT NULL REFERENCES users(user_id),
+  followed_id UUID NOT NULL REFERENCES users(user_id),
+  relationship_type VARCHAR(20) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  UNIQUE(follower_id, followed_id)
+);
+```
+
+Create indexes on:
+- users.username, users.email
+- relationships.follower_id, relationships.followed_id
+
+Consider using a graph database like Neo4j for complex social relationship queries if the application requires advanced social network analysis.
+
+## 2. Design Content and Media Model [pending]
+### Dependencies: None
+### Description: Define the database schema for content items including posts, media attachments, and associated metadata.
+### Details:
+Create a content model that supports various post types and media attachments:
+
+- Content table: content_id (primary key), user_id (foreign key), content_type, text_content, created_at, updated_at, status (draft, published, archived)
+- Media attachments: media_id (primary key), content_id (foreign key), media_type (image, video, etc.), media_url, thumbnail_url, width, height, duration (for videos), created_at
+- Content metadata: tags, mentions, locations, etc.
+
+For SQL implementation:
+```sql
+CREATE TABLE content (
+  content_id UUID PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES users(user_id),
+  content_type VARCHAR(20) NOT NULL,
+  text_content TEXT,
+  status VARCHAR(10) NOT NULL DEFAULT 'published',
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE media (
+  media_id UUID PRIMARY KEY,
+  content_id UUID NOT NULL REFERENCES content(content_id),
+  media_type VARCHAR(10) NOT NULL,
+  media_url VARCHAR(255) NOT NULL,
+  thumbnail_url VARCHAR(255),
+  width INTEGER,
+  height INTEGER,
+  duration INTEGER,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE content_tags (
+  content_id UUID NOT NULL REFERENCES content(content_id),
+  tag VARCHAR(50) NOT NULL,
+  PRIMARY KEY (content_id, tag)
+);
+```
+
+Create indexes on:
+- content.user_id, content.created_at
+- media.content_id
+- content_tags.tag
+
+Consider using a document database like MongoDB for content if the structure varies significantly between content types.
+
+## 3. Design Engagement Model [pending]
+### Dependencies: 2.1, 2.2
+### Description: Define the database schema for user engagement metrics including likes, comments, shares, and views.
+### Details:
+Create an engagement model that tracks all user interactions with content:
+
+- Likes/Reactions: reaction_id, user_id, content_id, reaction_type, created_at
+- Comments: comment_id, content_id, user_id, parent_comment_id (for nested comments), text, created_at, updated_at
+- Shares: share_id, content_id, user_id, shared_at
+- Views: view_id, content_id, user_id, viewed_at, view_duration
+
+For SQL implementation:
+```sql
+CREATE TABLE reactions (
+  reaction_id UUID PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES users(user_id),
+  content_id UUID NOT NULL REFERENCES content(content_id),
+  reaction_type VARCHAR(20) NOT NULL DEFAULT 'like',
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  UNIQUE(user_id, content_id)
+);
+
+CREATE TABLE comments (
+  comment_id UUID PRIMARY KEY,
+  content_id UUID NOT NULL REFERENCES content(content_id),
+  user_id UUID NOT NULL REFERENCES users(user_id),
+  parent_comment_id UUID REFERENCES comments(comment_id),
+  text TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE shares (
+  share_id UUID PRIMARY KEY,
+  content_id UUID NOT NULL REFERENCES content(content_id),
+  user_id UUID NOT NULL REFERENCES users(user_id),
+  shared_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE views (
+  view_id UUID PRIMARY KEY,
+  content_id UUID NOT NULL REFERENCES content(content_id),
+  user_id UUID NOT NULL REFERENCES users(user_id),
+  viewed_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  view_duration INTEGER
+);
+```
+
+Create indexes on:
+- reactions.user_id, reactions.content_id
+- comments.content_id, comments.user_id, comments.parent_comment_id
+- shares.content_id, shares.user_id
+- views.content_id, views.user_id
+
+Consider using a time-series database for view analytics if high-volume tracking is required.
+
+## 4. Design Algorithm Parameters Model [pending]
+### Dependencies: 2.3
+### Description: Define the data model for storing and configuring feed algorithm parameters, weights, and personalization factors.
+### Details:
+Create a flexible model for algorithm configuration that supports A/B testing and personalization:
+
+- Algorithm configurations: algorithm_id, name, description, is_active, created_at, updated_at
+- Algorithm parameters: parameter_id, algorithm_id, parameter_name, parameter_type, default_value
+- User-specific algorithm settings: user_id, algorithm_id, parameter_overrides (JSON/document)
+- A/B test configurations: test_id, name, start_date, end_date, algorithm_variants (JSON/document)
+
+For SQL implementation:
+```sql
+CREATE TABLE algorithm_configs (
+  algorithm_id UUID PRIMARY KEY,
+  name VARCHAR(50) NOT NULL,
+  description TEXT,
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE algorithm_parameters (
+  parameter_id UUID PRIMARY KEY,
+  algorithm_id UUID NOT NULL REFERENCES algorithm_configs(algorithm_id),
+  parameter_name VARCHAR(50) NOT NULL,
+  parameter_type VARCHAR(20) NOT NULL,
+  default_value TEXT NOT NULL,
+  UNIQUE(algorithm_id, parameter_name)
+);
+
+CREATE TABLE user_algorithm_settings (
+  user_id UUID NOT NULL REFERENCES users(user_id),
+  algorithm_id UUID NOT NULL REFERENCES algorithm_configs(algorithm_id),
+  parameter_overrides JSONB NOT NULL,
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (user_id, algorithm_id)
+);
+
+CREATE TABLE ab_tests (
+  test_id UUID PRIMARY KEY,
+  name VARCHAR(50) NOT NULL,
+  start_date TIMESTAMP NOT NULL,
+  end_date TIMESTAMP,
+  algorithm_variants JSONB NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+```
+
+Typical algorithm parameters might include:
+- recency_weight: float
+- popularity_weight: float
+- relevance_weight: float
+- diversity_factor: float
+- content_type_weights: JSON object
+- max_items_per_source: integer
+
+## 5. Design Feed Composition Model [pending]
+### Dependencies: 2.4
+### Description: Define the data model for feed structure, pagination, caching, and delivery to clients.
+### Details:
+Create a model for feed composition and delivery that supports efficient retrieval and caching:
+
+- Feed entries: feed_entry_id, user_id (feed owner), content_id, algorithm_id, score, position, created_at
+- Feed metadata: feed_id, user_id, feed_type, last_updated, item_count
+- Feed pagination: cursor-based pagination using feed_entry_id or timestamp
+- Cache configuration: cache_key patterns, TTL values, invalidation rules
+
+For SQL implementation:
+```sql
+CREATE TABLE feed_entries (
+  feed_entry_id UUID PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES users(user_id),
+  content_id UUID NOT NULL REFERENCES content(content_id),
+  algorithm_id UUID NOT NULL REFERENCES algorithm_configs(algorithm_id),
+  score FLOAT NOT NULL,
+  position INTEGER NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  UNIQUE(user_id, content_id)
+);
+
+CREATE TABLE feed_metadata (
+  feed_id UUID PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES users(user_id),
+  feed_type VARCHAR(20) NOT NULL,
+  last_updated TIMESTAMP NOT NULL DEFAULT NOW(),
+  item_count INTEGER NOT NULL DEFAULT 0,
+  UNIQUE(user_id, feed_type)
+);
+
+CREATE TABLE cache_config (
+  config_id UUID PRIMARY KEY,
+  cache_key_pattern VARCHAR(100) NOT NULL,
+  ttl_seconds INTEGER NOT NULL,
+  invalidation_rules JSONB,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+```
+
+Create indexes on:
+- feed_entries.user_id, feed_entries.created_at, feed_entries.score
+- feed_metadata.user_id
+
+Design the caching strategy to include:
+- User feed caching (Redis recommended)
+- Content fragment caching
+- Cache invalidation triggers based on new content and engagement
+- Cache key design: `feed:{user_id}:{feed_type}:{page_size}:{cursor}`
+

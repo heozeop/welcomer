@@ -1,0 +1,823 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Define System Architecture",
+        "description": "Create a comprehensive system architecture document for the SNS default feed system, outlining all major components and their interactions.",
+        "details": "The architecture document should include:\n1. High-level system diagram showing all components\n2. Data flow diagrams\n3. Component responsibilities\n4. Technology stack selection (databases, caching layers, message queues)\n5. Scalability considerations\n6. Infrastructure requirements (cloud services, server specifications)\n7. Security architecture\n\nThe document should follow a microservices approach if appropriate for scalability, with clear separation of concerns between feed generation, content storage, user preference management, and delivery mechanisms.",
+        "testStrategy": "Review the architecture document with technical stakeholders to validate completeness, scalability, and alignment with industry best practices. Create a checklist of architectural requirements and verify each component against it.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create High-Level System Diagram and Component Breakdown",
+            "description": "Design a comprehensive high-level system diagram showing all major components of the SNS feed system and define the responsibilities of each component.",
+            "dependencies": [],
+            "details": "Create a system diagram using architecture modeling tools (e.g., draw.io, Lucidchart) that illustrates all major components including: content service, user service, feed generation service, engagement tracking, notification system, and API gateway. For each component, document its primary responsibilities, interfaces, and how it interacts with other components. Follow microservices principles with clear boundaries between services. Include both synchronous and asynchronous communication patterns between services.",
+            "status": "done",
+            "testStrategy": "Review the diagram with senior engineers to validate component boundaries and responsibilities. Verify that all required system functionalities can be mapped to specific components."
+          },
+          {
+            "id": 2,
+            "title": "Define Data Flow and Technology Stack",
+            "description": "Create detailed data flow diagrams and select the appropriate technology stack for each component of the system.",
+            "dependencies": [],
+            "details": "Develop data flow diagrams showing how information moves through the system for key operations (post creation, feed generation, user engagement). For each component identified in subtask 1, select specific technologies: databases (consider PostgreSQL for relational data, MongoDB for content, Redis for caching), message queues (Kafka/RabbitMQ for event streaming), compute resources (container orchestration with Kubernetes), and storage solutions. Justify each technology choice based on requirements for scalability, performance, and maintainability. Document data retention policies and data lifecycle management.",
+            "status": "done",
+            "testStrategy": "Create proof-of-concept diagrams for critical data flows. Validate technology choices against performance requirements and scalability projections. Review with infrastructure team to confirm feasibility."
+          },
+          {
+            "id": 3,
+            "title": "Design Scalability and Infrastructure Requirements",
+            "description": "Define the scalability approach and detailed infrastructure requirements for the SNS feed system.",
+            "dependencies": [],
+            "details": "Document horizontal and vertical scaling strategies for each component. Define auto-scaling policies based on load metrics. Specify infrastructure requirements including: cloud provider services (AWS/GCP/Azure), compute resources (instance types, memory/CPU requirements), storage needs (volume sizes, IOPS requirements), networking configuration (load balancers, CDN integration), and regional distribution strategy. Include capacity planning calculations based on projected user growth and engagement patterns. Design for high availability with appropriate redundancy and failover mechanisms.",
+            "status": "done",
+            "testStrategy": "Create load models to validate the scaling approach. Review infrastructure specifications with DevOps team. Develop a checklist of scalability requirements and verify the design against each item."
+          },
+          {
+            "id": 4,
+            "title": "Develop Security Architecture",
+            "description": "Design a comprehensive security architecture for the SNS feed system addressing authentication, authorization, data protection, and compliance requirements.",
+            "dependencies": [],
+            "details": "Define the authentication system (OAuth 2.0, JWT tokens), authorization framework (role-based/attribute-based access control), and API security measures. Document data protection strategies including encryption (at rest and in transit), PII handling, and compliance with relevant regulations (GDPR, CCPA). Design security monitoring and incident response procedures. Include network security controls (firewalls, WAF, DDoS protection), secure coding practices, and vulnerability management approach. Create a threat model identifying potential attack vectors and mitigation strategies.",
+            "status": "done",
+            "testStrategy": "Conduct a security review with security specialists. Create a threat modeling session to identify potential vulnerabilities. Verify compliance with company security policies and industry standards."
+          },
+          {
+            "id": 5,
+            "title": "Compile Final Architecture Document",
+            "description": "Consolidate all architectural components into a comprehensive architecture document with implementation recommendations and migration strategy.",
+            "dependencies": [],
+            "details": "Create a final architecture document that integrates all previous subtasks into a cohesive whole. Include an executive summary, architectural principles, detailed component descriptions, data models, API contracts between services, and implementation roadmap. Document non-functional requirements (performance SLAs, reliability targets, scalability metrics). Add deployment architecture diagrams showing staging and production environments. Include a phased implementation plan with milestones and dependencies. Document operational considerations including monitoring, alerting, and disaster recovery procedures.",
+            "status": "done",
+            "testStrategy": "Conduct a comprehensive architecture review with all stakeholders including engineering leads, product managers, and operations team. Create an architecture validation checklist covering all requirements and verify each item. Identify any gaps or inconsistencies in the final document."
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Design Data Models",
+        "description": "Define the core data models required for the SNS feed system, including user profiles, content items, engagement metrics, and feed algorithms.",
+        "details": "Create comprehensive data models with the following components:\n1. User model (profile data, preferences, social graph)\n2. Content model (posts, media, metadata)\n3. Engagement model (likes, comments, shares, views)\n4. Algorithm parameters model (weights, personalization factors)\n5. Feed composition model (structure, pagination, caching)\n\nFor each model, define:\n- Database schema (SQL or NoSQL as appropriate)\n- Field definitions with data types\n- Relationships and foreign keys\n- Indexing strategy\n- Data validation rules\n\nConsider using a document database for content and a graph database for social relationships if appropriate.",
+        "testStrategy": "Create test data sets that validate the data models. Verify that the models support all required queries with acceptable performance. Test edge cases like very active users or viral content. Review with data engineers to ensure scalability.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design User Profile and Social Graph Model",
+            "description": "Define the database schema for user profiles and social relationships, including all necessary fields, data types, and relationships.",
+            "dependencies": [],
+            "details": "Create a comprehensive user model with:\n- Core profile fields: user_id (primary key), username, email, password_hash, full_name, bio, profile_image_url, created_at, updated_at\n- Extended profile: location, website, birthday, preferences (JSON/document for flexibility)\n- Social graph: Define relationships table with user_id, followed_user_id, relationship_type, created_at\n- Privacy settings: visibility_settings (JSON/document)\n\nFor SQL implementation:\n```sql\nCREATE TABLE users (\n  user_id UUID PRIMARY KEY,\n  username VARCHAR(30) UNIQUE NOT NULL,\n  email VARCHAR(255) UNIQUE NOT NULL,\n  password_hash VARCHAR(255) NOT NULL,\n  full_name VARCHAR(100) NOT NULL,\n  bio TEXT,\n  profile_image_url VARCHAR(255),\n  preferences JSONB,\n  created_at TIMESTAMP NOT NULL DEFAULT NOW(),\n  updated_at TIMESTAMP NOT NULL DEFAULT NOW()\n);\n\nCREATE TABLE relationships (\n  relationship_id UUID PRIMARY KEY,\n  follower_id UUID NOT NULL REFERENCES users(user_id),\n  followed_id UUID NOT NULL REFERENCES users(user_id),\n  relationship_type VARCHAR(20) NOT NULL,\n  created_at TIMESTAMP NOT NULL DEFAULT NOW(),\n  UNIQUE(follower_id, followed_id)\n);\n```\n\nCreate indexes on:\n- users.username, users.email\n- relationships.follower_id, relationships.followed_id\n\nConsider using a graph database like Neo4j for complex social relationship queries if the application requires advanced social network analysis.",
+            "status": "pending",
+            "testStrategy": "Create test data with various user profiles and relationship patterns. Verify queries for common operations like profile retrieval, follower/following lists, and social graph traversal. Test edge cases like users with thousands of connections."
+          },
+          {
+            "id": 2,
+            "title": "Design Content and Media Model",
+            "description": "Define the database schema for content items including posts, media attachments, and associated metadata.",
+            "dependencies": [],
+            "details": "Create a content model that supports various post types and media attachments:\n\n- Content table: content_id (primary key), user_id (foreign key), content_type, text_content, created_at, updated_at, status (draft, published, archived)\n- Media attachments: media_id (primary key), content_id (foreign key), media_type (image, video, etc.), media_url, thumbnail_url, width, height, duration (for videos), created_at\n- Content metadata: tags, mentions, locations, etc.\n\nFor SQL implementation:\n```sql\nCREATE TABLE content (\n  content_id UUID PRIMARY KEY,\n  user_id UUID NOT NULL REFERENCES users(user_id),\n  content_type VARCHAR(20) NOT NULL,\n  text_content TEXT,\n  status VARCHAR(10) NOT NULL DEFAULT 'published',\n  created_at TIMESTAMP NOT NULL DEFAULT NOW(),\n  updated_at TIMESTAMP NOT NULL DEFAULT NOW()\n);\n\nCREATE TABLE media (\n  media_id UUID PRIMARY KEY,\n  content_id UUID NOT NULL REFERENCES content(content_id),\n  media_type VARCHAR(10) NOT NULL,\n  media_url VARCHAR(255) NOT NULL,\n  thumbnail_url VARCHAR(255),\n  width INTEGER,\n  height INTEGER,\n  duration INTEGER,\n  created_at TIMESTAMP NOT NULL DEFAULT NOW()\n);\n\nCREATE TABLE content_tags (\n  content_id UUID NOT NULL REFERENCES content(content_id),\n  tag VARCHAR(50) NOT NULL,\n  PRIMARY KEY (content_id, tag)\n);\n```\n\nCreate indexes on:\n- content.user_id, content.created_at\n- media.content_id\n- content_tags.tag\n\nConsider using a document database like MongoDB for content if the structure varies significantly between content types.",
+            "status": "pending",
+            "testStrategy": "Create test data with various content types and media attachments. Test queries for content retrieval, filtering by type, and aggregation. Verify performance for media-heavy content and test edge cases like posts with multiple attachments or very long text."
+          },
+          {
+            "id": 3,
+            "title": "Design Engagement Model",
+            "description": "Define the database schema for user engagement metrics including likes, comments, shares, and views.",
+            "dependencies": [
+              "2.1",
+              "2.2"
+            ],
+            "details": "Create an engagement model that tracks all user interactions with content:\n\n- Likes/Reactions: reaction_id, user_id, content_id, reaction_type, created_at\n- Comments: comment_id, content_id, user_id, parent_comment_id (for nested comments), text, created_at, updated_at\n- Shares: share_id, content_id, user_id, shared_at\n- Views: view_id, content_id, user_id, viewed_at, view_duration\n\nFor SQL implementation:\n```sql\nCREATE TABLE reactions (\n  reaction_id UUID PRIMARY KEY,\n  user_id UUID NOT NULL REFERENCES users(user_id),\n  content_id UUID NOT NULL REFERENCES content(content_id),\n  reaction_type VARCHAR(20) NOT NULL DEFAULT 'like',\n  created_at TIMESTAMP NOT NULL DEFAULT NOW(),\n  UNIQUE(user_id, content_id)\n);\n\nCREATE TABLE comments (\n  comment_id UUID PRIMARY KEY,\n  content_id UUID NOT NULL REFERENCES content(content_id),\n  user_id UUID NOT NULL REFERENCES users(user_id),\n  parent_comment_id UUID REFERENCES comments(comment_id),\n  text TEXT NOT NULL,\n  created_at TIMESTAMP NOT NULL DEFAULT NOW(),\n  updated_at TIMESTAMP NOT NULL DEFAULT NOW()\n);\n\nCREATE TABLE shares (\n  share_id UUID PRIMARY KEY,\n  content_id UUID NOT NULL REFERENCES content(content_id),\n  user_id UUID NOT NULL REFERENCES users(user_id),\n  shared_at TIMESTAMP NOT NULL DEFAULT NOW()\n);\n\nCREATE TABLE views (\n  view_id UUID PRIMARY KEY,\n  content_id UUID NOT NULL REFERENCES content(content_id),\n  user_id UUID NOT NULL REFERENCES users(user_id),\n  viewed_at TIMESTAMP NOT NULL DEFAULT NOW(),\n  view_duration INTEGER\n);\n```\n\nCreate indexes on:\n- reactions.user_id, reactions.content_id\n- comments.content_id, comments.user_id, comments.parent_comment_id\n- shares.content_id, shares.user_id\n- views.content_id, views.user_id\n\nConsider using a time-series database for view analytics if high-volume tracking is required.",
+            "status": "pending",
+            "testStrategy": "Create test data with various engagement patterns. Test queries for counting engagements, retrieving comment threads, and aggregating metrics. Verify performance for viral content with thousands of engagements. Test data integrity with concurrent operations."
+          },
+          {
+            "id": 4,
+            "title": "Design Algorithm Parameters Model",
+            "description": "Define the data model for storing and configuring feed algorithm parameters, weights, and personalization factors.",
+            "dependencies": [
+              "2.3"
+            ],
+            "details": "Create a flexible model for algorithm configuration that supports A/B testing and personalization:\n\n- Algorithm configurations: algorithm_id, name, description, is_active, created_at, updated_at\n- Algorithm parameters: parameter_id, algorithm_id, parameter_name, parameter_type, default_value\n- User-specific algorithm settings: user_id, algorithm_id, parameter_overrides (JSON/document)\n- A/B test configurations: test_id, name, start_date, end_date, algorithm_variants (JSON/document)\n\nFor SQL implementation:\n```sql\nCREATE TABLE algorithm_configs (\n  algorithm_id UUID PRIMARY KEY,\n  name VARCHAR(50) NOT NULL,\n  description TEXT,\n  is_active BOOLEAN NOT NULL DEFAULT true,\n  created_at TIMESTAMP NOT NULL DEFAULT NOW(),\n  updated_at TIMESTAMP NOT NULL DEFAULT NOW()\n);\n\nCREATE TABLE algorithm_parameters (\n  parameter_id UUID PRIMARY KEY,\n  algorithm_id UUID NOT NULL REFERENCES algorithm_configs(algorithm_id),\n  parameter_name VARCHAR(50) NOT NULL,\n  parameter_type VARCHAR(20) NOT NULL,\n  default_value TEXT NOT NULL,\n  UNIQUE(algorithm_id, parameter_name)\n);\n\nCREATE TABLE user_algorithm_settings (\n  user_id UUID NOT NULL REFERENCES users(user_id),\n  algorithm_id UUID NOT NULL REFERENCES algorithm_configs(algorithm_id),\n  parameter_overrides JSONB NOT NULL,\n  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),\n  PRIMARY KEY (user_id, algorithm_id)\n);\n\nCREATE TABLE ab_tests (\n  test_id UUID PRIMARY KEY,\n  name VARCHAR(50) NOT NULL,\n  start_date TIMESTAMP NOT NULL,\n  end_date TIMESTAMP,\n  algorithm_variants JSONB NOT NULL,\n  created_at TIMESTAMP NOT NULL DEFAULT NOW(),\n  updated_at TIMESTAMP NOT NULL DEFAULT NOW()\n);\n```\n\nTypical algorithm parameters might include:\n- recency_weight: float\n- popularity_weight: float\n- relevance_weight: float\n- diversity_factor: float\n- content_type_weights: JSON object\n- max_items_per_source: integer",
+            "status": "pending",
+            "testStrategy": "Create test configurations with various parameter combinations. Verify that the algorithm correctly applies parameters and overrides. Test A/B test assignment and parameter application. Ensure that parameter changes propagate correctly to the feed generation process."
+          },
+          {
+            "id": 5,
+            "title": "Design Feed Composition Model",
+            "description": "Define the data model for feed structure, pagination, caching, and delivery to clients.",
+            "dependencies": [
+              "2.4"
+            ],
+            "details": "Create a model for feed composition and delivery that supports efficient retrieval and caching:\n\n- Feed entries: feed_entry_id, user_id (feed owner), content_id, algorithm_id, score, position, created_at\n- Feed metadata: feed_id, user_id, feed_type, last_updated, item_count\n- Feed pagination: cursor-based pagination using feed_entry_id or timestamp\n- Cache configuration: cache_key patterns, TTL values, invalidation rules\n\nFor SQL implementation:\n```sql\nCREATE TABLE feed_entries (\n  feed_entry_id UUID PRIMARY KEY,\n  user_id UUID NOT NULL REFERENCES users(user_id),\n  content_id UUID NOT NULL REFERENCES content(content_id),\n  algorithm_id UUID NOT NULL REFERENCES algorithm_configs(algorithm_id),\n  score FLOAT NOT NULL,\n  position INTEGER NOT NULL,\n  created_at TIMESTAMP NOT NULL DEFAULT NOW(),\n  UNIQUE(user_id, content_id)\n);\n\nCREATE TABLE feed_metadata (\n  feed_id UUID PRIMARY KEY,\n  user_id UUID NOT NULL REFERENCES users(user_id),\n  feed_type VARCHAR(20) NOT NULL,\n  last_updated TIMESTAMP NOT NULL DEFAULT NOW(),\n  item_count INTEGER NOT NULL DEFAULT 0,\n  UNIQUE(user_id, feed_type)\n);\n\nCREATE TABLE cache_config (\n  config_id UUID PRIMARY KEY,\n  cache_key_pattern VARCHAR(100) NOT NULL,\n  ttl_seconds INTEGER NOT NULL,\n  invalidation_rules JSONB,\n  created_at TIMESTAMP NOT NULL DEFAULT NOW(),\n  updated_at TIMESTAMP NOT NULL DEFAULT NOW()\n);\n```\n\nCreate indexes on:\n- feed_entries.user_id, feed_entries.created_at, feed_entries.score\n- feed_metadata.user_id\n\nDesign the caching strategy to include:\n- User feed caching (Redis recommended)\n- Content fragment caching\n- Cache invalidation triggers based on new content and engagement\n- Cache key design: `feed:{user_id}:{feed_type}:{page_size}:{cursor}`",
+            "status": "pending",
+            "testStrategy": "Create test feeds with various content mixes. Test pagination with different page sizes and cursor positions. Verify cache hit/miss scenarios and invalidation triggers. Test performance with large feeds and concurrent access patterns. Measure feed generation and delivery times."
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Implement Content Ingestion Service",
+        "description": "Develop a service to ingest and process content from various sources for inclusion in the feed system.",
+        "details": "Build a scalable content ingestion service that:\n1. Accepts content submissions via API\n2. Validates and sanitizes incoming content\n3. Processes media attachments (images, videos)\n4. Extracts metadata and keywords\n5. Stores content in the appropriate data store\n6. Triggers events for feed update processing\n\nImplementation should include:\n```\n// Sample pseudocode for content ingestion\nclass ContentIngestionService {\n  async ingestContent(content, userId, metadata) {\n    // Validate content\n    const validationResult = this.validateContent(content);\n    if (!validationResult.isValid) throw new ValidationError(validationResult.errors);\n    \n    // Process media if present\n    const processedMedia = await this.processMedia(content.media);\n    \n    // Extract metadata\n    const enhancedMetadata = this.extractMetadata(content);\n    \n    // Store in database\n    const contentId = await this.contentRepository.store({\n      userId,\n      content: content.text,\n      media: processedMedia,\n      metadata: { ...metadata, ...enhancedMetadata },\n      createdAt: new Date()\n    });\n    \n    // Publish event for feed processing\n    await this.eventBus.publish('content.created', { contentId, userId });\n    \n    return contentId;\n  }\n}\n```",
+        "testStrategy": "Unit tests for content validation, media processing, and metadata extraction. Integration tests for the full ingestion flow. Load testing to ensure the service can handle peak content submission rates. Verify event publication for downstream processing.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Content Validation and Sanitization",
+            "description": "Create a validation module that checks incoming content for required fields, validates data types, and sanitizes content to prevent security issues like XSS attacks.",
+            "dependencies": [],
+            "details": "Develop a ContentValidator class with methods for different validation rules. Implement sanitization using a library like DOMPurify. Create a validation pipeline that runs multiple checks in sequence and returns detailed error messages. Handle different content types (text, links, etc.) with specific validation rules. Include rate limiting checks to prevent spam.",
+            "status": "pending",
+            "testStrategy": "Unit tests with valid and invalid content samples. Test edge cases like empty content, malformed data, and malicious inputs. Integration tests to verify the validator works within the service."
+          },
+          {
+            "id": 2,
+            "title": "Build Media Processing Pipeline",
+            "description": "Create a system to process, optimize, and store media attachments (images, videos) that are included with content submissions.",
+            "dependencies": [
+              "3.1"
+            ],
+            "details": "Implement a MediaProcessor class that detects media types, validates formats, and processes each type appropriately. For images: resize, compress, and generate thumbnails. For videos: validate format, extract thumbnail, and prepare for streaming. Store processed media in cloud storage with appropriate metadata. Handle asynchronous processing for large media files.",
+            "status": "pending",
+            "testStrategy": "Unit tests for each media type processor. Integration tests with sample media files. Performance tests to ensure efficient processing of large files. Test error handling for corrupted or invalid media."
+          },
+          {
+            "id": 3,
+            "title": "Develop Metadata Extraction Service",
+            "description": "Create a service that extracts and enhances metadata from content, including keywords, entities, and semantic information.",
+            "dependencies": [
+              "3.1"
+            ],
+            "details": "Implement a MetadataExtractor class that analyzes content text to identify keywords, topics, and entities. Use NLP techniques or external APIs for entity recognition and topic classification. Extract structured data like links, mentions, and hashtags. Generate searchable keywords for improved content discovery. Store metadata alongside content for efficient retrieval.",
+            "status": "pending",
+            "testStrategy": "Unit tests for keyword extraction with known text samples. Integration tests to verify metadata is correctly associated with content. Benchmark tests to ensure extraction performance meets requirements."
+          },
+          {
+            "id": 4,
+            "title": "Implement Content Storage Repository",
+            "description": "Create a data access layer to store processed content and its associated metadata in the appropriate data stores.",
+            "dependencies": [
+              "3.2",
+              "3.3"
+            ],
+            "details": "Develop a ContentRepository class that handles persistence of content and metadata. Design database schema with appropriate indexes for efficient retrieval. Implement transaction management to ensure data consistency. Create methods for storing, retrieving, updating, and deleting content. Implement batch operations for efficient bulk processing. Consider using different storage solutions for different content types (e.g., document store for text, blob storage for media).",
+            "status": "pending",
+            "testStrategy": "Unit tests for CRUD operations. Integration tests with database. Performance tests for read/write operations under load. Test transaction rollback scenarios."
+          },
+          {
+            "id": 5,
+            "title": "Create Event Publication System",
+            "description": "Implement a system to publish events when content is ingested, allowing downstream services to react to new content.",
+            "dependencies": [
+              "3.4"
+            ],
+            "details": "Develop an EventPublisher class that sends notifications when content is created or updated. Implement a reliable messaging pattern using a message broker (e.g., RabbitMQ, Kafka). Create event schemas for different content operations. Include relevant content metadata in events for downstream processing. Implement retry logic and dead letter queues for failed event publications. Add monitoring for event publication success/failure rates.",
+            "status": "pending",
+            "testStrategy": "Unit tests for event creation and formatting. Integration tests with message broker. End-to-end tests to verify downstream services receive events. Chaos testing to ensure resilience during network issues or broker downtime."
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Develop Feed Generation Algorithm",
+        "description": "Create the core algorithm that determines what content appears in a user's default feed and in what order.",
+        "details": "Implement a configurable feed generation algorithm that:\n1. Ranks content based on multiple factors (recency, popularity, relevance)\n2. Personalizes based on user preferences and behavior\n3. Balances diversity of content sources\n4. Handles cold-start problems for new users\n5. Supports A/B testing of algorithm variations\n\nImplementation details:\n```\nclass FeedAlgorithm {\n  constructor(userPreferenceService, contentRepository, engagementService) {\n    this.userPreferenceService = userPreferenceService;\n    this.contentRepository = contentRepository;\n    this.engagementService = engagementService;\n    this.weights = {\n      recency: 0.5,\n      popularity: 0.3,\n      relevance: 0.2\n    };\n  }\n  \n  async generateFeed(userId, options = {}) {\n    const userPreferences = await this.userPreferenceService.getPreferences(userId);\n    const candidateContent = await this.contentRepository.getCandidateContent(options.limit * 3);\n    \n    // Score each content item\n    const scoredContent = await Promise.all(candidateContent.map(async (content) => {\n      const recencyScore = this.calculateRecencyScore(content.createdAt);\n      const popularityScore = await this.engagementService.getPopularityScore(content.id);\n      const relevanceScore = this.calculateRelevanceScore(content, userPreferences);\n      \n      const totalScore = \n        (recencyScore * this.weights.recency) +\n        (popularityScore * this.weights.popularity) +\n        (relevanceScore * this.weights.relevance);\n        \n      return { content, score: totalScore };\n    }));\n    \n    // Sort by score and apply diversity rules\n    const rankedContent = this.applyDiversityRules(scoredContent.sort((a, b) => b.score - a.score));\n    \n    // Return top N items\n    return rankedContent.slice(0, options.limit).map(item => item.content);\n  }\n}\n```",
+        "testStrategy": "Unit tests for individual scoring components. Integration tests with mock data to verify ranking behavior. A/B testing framework to compare algorithm variations. Metrics collection to evaluate feed quality (engagement rates, time spent, diversity measures).",
+        "priority": "high",
+        "dependencies": [
+          2,
+          3
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Core Scoring Functions",
+            "description": "Develop the core scoring functions for content ranking based on recency, popularity, and relevance factors.",
+            "dependencies": [],
+            "details": "Create methods to calculate individual scores:\n1. Implement `calculateRecencyScore(createdAt)` that returns higher scores for newer content using a decay function\n2. Implement `calculateRelevanceScore(content, userPreferences)` that compares content attributes with user preferences\n3. Integrate with the engagement service to retrieve popularity scores\n4. Normalize all scores to a 0-1 range for consistent weighting\n5. Add configuration options for adjusting the weight parameters",
+            "status": "pending",
+            "testStrategy": "Unit test each scoring function with various inputs to verify correct behavior. Create test cases for edge cases like very old content, extremely popular content, and perfect relevance matches."
+          },
+          {
+            "id": 2,
+            "title": "Develop Content Diversity Rules",
+            "description": "Create algorithms to ensure feed diversity by preventing overrepresentation of similar content or sources.",
+            "dependencies": [
+              "4.1"
+            ],
+            "details": "Implement the `applyDiversityRules(scoredContent)` method that:\n1. Groups content by source, topic, and content type\n2. Applies penalties to similar content appearing too close together\n3. Ensures representation from multiple sources\n4. Maintains a balance of content types (e.g., text, images, videos)\n5. Preserves overall quality by making minimal adjustments to high-scoring content",
+            "status": "pending",
+            "testStrategy": "Test with mock content sets to verify diverse distribution. Create scenarios with highly skewed input content and verify the output maintains diversity without sacrificing too much relevance."
+          },
+          {
+            "id": 3,
+            "title": "Implement Cold-Start Handling",
+            "description": "Develop mechanisms to generate quality feeds for new users with limited preference data.",
+            "dependencies": [
+              "4.1"
+            ],
+            "details": "Extend the FeedAlgorithm class to handle new users:\n1. Add detection for users with insufficient preference or history data\n2. Implement fallback strategies using trending content and broad appeal items\n3. Create a progressive personalization approach that gradually increases personalization as user data accumulates\n4. Add demographic-based initial recommendations if basic user information is available\n5. Include diverse content sampling to quickly learn user preferences",
+            "status": "pending",
+            "testStrategy": "Test with simulated new users to verify cold-start feeds are engaging. Measure how quickly the algorithm transitions from general to personalized content as user interactions increase."
+          },
+          {
+            "id": 4,
+            "title": "Build A/B Testing Integration",
+            "description": "Add support for running multiple algorithm variants and directing users to different experiment groups.",
+            "dependencies": [
+              "4.1",
+              "4.2",
+              "4.3"
+            ],
+            "details": "Enhance the FeedAlgorithm class to support experimentation:\n1. Modify the constructor to accept experiment parameters\n2. Create variant implementations of scoring and ranking functions\n3. Add experiment ID and variant tracking to feed generation\n4. Implement parameter overrides based on experiment configuration\n5. Add logging of key metrics for experiment analysis\n6. Ensure consistent user experience within experiment groups",
+            "status": "pending",
+            "testStrategy": "Verify that users consistently receive the same algorithm variant. Test that experiment parameters correctly override defaults. Confirm that sufficient data is logged for experiment analysis."
+          },
+          {
+            "id": 5,
+            "title": "Optimize Feed Generation Performance",
+            "description": "Improve the efficiency and scalability of the feed generation algorithm for production use.",
+            "dependencies": [
+              "4.1",
+              "4.2",
+              "4.3",
+              "4.4"
+            ],
+            "details": "Optimize the feed generation process:\n1. Implement caching for frequently accessed data (user preferences, popularity scores)\n2. Add batch processing for scoring multiple content items efficiently\n3. Implement pagination and lazy loading strategies for large content sets\n4. Add background pre-computation of feeds for active users\n5. Optimize database queries used in content selection\n6. Add performance monitoring and logging\n7. Implement circuit breakers for dependent services",
+            "status": "pending",
+            "testStrategy": "Conduct performance testing with large datasets to measure throughput and latency. Profile the algorithm to identify bottlenecks. Test degraded service scenarios when dependencies are slow or unavailable."
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Build Feed API Service",
+        "description": "Develop the API service that delivers personalized feed content to clients and handles pagination, filtering, and feed refreshes.",
+        "details": "Create a RESTful API service that:\n1. Authenticates users and validates requests\n2. Retrieves personalized feed content using the feed algorithm\n3. Supports pagination and infinite scrolling\n4. Handles feed refreshes and updates\n5. Provides filtering options\n6. Implements caching for performance\n\nAPI endpoints should include:\n```\nGET /api/v1/feed - Get user's default feed\nGET /api/v1/feed/refresh - Get new content since last feed load\nGET /api/v1/feed/explore - Get discovery feed with more diverse content\n```\n\nImplementation should use a web framework with middleware for:\n- Authentication\n- Rate limiting\n- Response caching\n- Error handling\n- Logging and monitoring\n\nThe service should implement efficient pagination using cursor-based pagination rather than offset-based for better performance with large datasets.",
+        "testStrategy": "Unit tests for API controllers and middleware. Integration tests for the full request/response cycle. Performance testing to ensure response times meet requirements under load. API contract tests to verify the service meets client requirements.",
+        "priority": "high",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Authentication and Request Validation Middleware",
+            "description": "Create middleware components for authenticating users and validating incoming requests to the feed API. This includes JWT validation, permission checking, and request parameter validation.",
+            "dependencies": [],
+            "details": "Develop middleware functions that: 1) Extract and validate JWT tokens from request headers, 2) Verify user permissions for accessing feed endpoints, 3) Validate query parameters for pagination, filtering, and other options, 4) Implement rate limiting to prevent abuse. Use a middleware pattern compatible with the chosen web framework. Create reusable validation schemas for different endpoint requirements.",
+            "status": "pending",
+            "testStrategy": "Unit tests for each middleware function with mock requests. Integration tests to verify middleware chain behavior. Security testing to ensure authentication cannot be bypassed."
+          },
+          {
+            "id": 2,
+            "title": "Develop Core Feed Retrieval Endpoints",
+            "description": "Implement the primary feed API endpoints that retrieve personalized content using the feed algorithm, including the default feed and explore feed endpoints.",
+            "dependencies": [
+              "5.1"
+            ],
+            "details": "Create controller handlers for GET /api/v1/feed and GET /api/v1/feed/explore endpoints. Integrate with the Feed Generation Algorithm (Task 4) to retrieve personalized content. Implement cursor-based pagination using parameters like cursor_id and limit. Structure the response format to include feed items and pagination metadata (next_cursor, has_more). Add appropriate error handling for algorithm failures or empty results.",
+            "status": "pending",
+            "testStrategy": "Unit tests for controller logic with mocked dependencies. Integration tests for the full request/response cycle. Performance tests to ensure response times meet requirements under load."
+          },
+          {
+            "id": 3,
+            "title": "Implement Feed Refresh Mechanism",
+            "description": "Create the endpoint and logic for retrieving only new content since the last feed load, enabling efficient feed refreshes without duplicating content.",
+            "dependencies": [
+              "5.2"
+            ],
+            "details": "Develop the GET /api/v1/feed/refresh endpoint that accepts a timestamp or cursor of the last retrieved item. Modify the feed algorithm integration to filter for content newer than the provided reference point. Implement optimized queries that only fetch new content rather than regenerating the entire feed. Add proper headers for cache control to prevent unnecessary refreshes.",
+            "status": "pending",
+            "testStrategy": "Unit tests for the refresh logic with various timestamp scenarios. Integration tests to verify new content is correctly identified. Performance testing to ensure refresh operations are significantly faster than full feed loads."
+          },
+          {
+            "id": 4,
+            "title": "Add Filtering and Sorting Capabilities",
+            "description": "Enhance the feed API to support various filtering and sorting options, allowing clients to customize the feed based on content types, topics, or other attributes.",
+            "dependencies": [
+              "5.2"
+            ],
+            "details": "Extend the existing endpoints to accept query parameters for filtering (content_type, topic, source, etc.) and sorting (recent, popular, relevant). Create filter processors that translate query parameters into algorithm inputs. Implement validation for filter combinations to prevent performance issues. Document all available filter options in the API specification.",
+            "status": "pending",
+            "testStrategy": "Unit tests for each filter and sort option. Integration tests with combinations of filters. Performance testing to ensure filtered queries maintain acceptable response times."
+          },
+          {
+            "id": 5,
+            "title": "Implement Response Caching and Performance Optimization",
+            "description": "Add caching mechanisms and performance optimizations to ensure the feed API can handle high traffic loads with minimal latency.",
+            "dependencies": [
+              "5.2",
+              "5.3",
+              "5.4"
+            ],
+            "details": "Implement response caching using Redis or a similar in-memory cache. Create cache keys based on user ID, pagination parameters, and filter options. Set appropriate cache expiration times based on content update frequency. Add cache invalidation triggers when new content is published. Implement request collapsing for concurrent identical requests. Add compression for response payloads. Optimize database queries with appropriate indexes and query plans.",
+            "status": "pending",
+            "testStrategy": "Performance benchmarks comparing cached vs. non-cached responses. Load testing to verify cache effectiveness under high concurrency. Integration tests to verify cache invalidation works correctly when new content is available."
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Implement User Preference Management",
+        "description": "Create a system for managing user preferences that affect feed content and personalization.",
+        "details": "Develop a user preference management system that:\n1. Stores explicit user preferences (topics, followed accounts, content types)\n2. Infers implicit preferences from user behavior\n3. Provides APIs for updating preferences\n4. Notifies the feed system when preferences change\n\nImplementation should include:\n```\nclass UserPreferenceService {\n  async getPreferences(userId) {\n    // Get explicit preferences from database\n    const explicitPreferences = await this.preferenceRepository.getForUser(userId);\n    \n    // Get implicit preferences from behavior analysis\n    const implicitPreferences = await this.behaviorAnalysisService.getImplicitPreferences(userId);\n    \n    // Merge preferences with appropriate weighting\n    return this.mergePreferences(explicitPreferences, implicitPreferences);\n  }\n  \n  async updatePreferences(userId, preferences) {\n    // Validate preferences\n    this.validatePreferences(preferences);\n    \n    // Update in database\n    await this.preferenceRepository.updateForUser(userId, preferences);\n    \n    // Publish event for feed system\n    await this.eventBus.publish('preferences.updated', { userId });\n    \n    return true;\n  }\n}\n```",
+        "testStrategy": "Unit tests for preference management functions. Integration tests for preference updates and event publishing. User acceptance testing with sample preference profiles to verify feed personalization works as expected.",
+        "priority": "medium",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Preference Repository for Explicit Preferences",
+            "description": "Implement a data access layer for storing and retrieving explicit user preferences from the database. This should handle preferences like topics, followed accounts, and content types.",
+            "dependencies": [],
+            "details": "Create a PreferenceRepository class that interfaces with the database to store user preference data. Implement methods for fetching, creating, updating, and deleting preferences. Use a structured schema that allows for flexible preference types and values. Include transaction support for batch updates.",
+            "status": "pending",
+            "testStrategy": "Unit tests for CRUD operations on preferences. Integration tests with a test database to verify persistence. Test edge cases like empty preferences and large preference sets."
+          },
+          {
+            "id": 2,
+            "title": "Implement Behavior Analysis Service for Implicit Preferences",
+            "description": "Build a service that analyzes user behavior data to infer implicit preferences. This should track actions like content views, likes, shares, and time spent to determine user interests.",
+            "dependencies": [],
+            "details": "Create a BehaviorAnalysisService that processes user interaction events and converts them into weighted preference scores. Implement algorithms to identify patterns in user behavior and translate them to preference categories. Include decay functions for older interactions to prioritize recent behavior.",
+            "status": "pending",
+            "testStrategy": "Unit tests for behavior analysis algorithms. Integration tests with sample user behavior datasets. Validation tests to ensure implicit preferences align with expected outcomes based on behavior patterns."
+          },
+          {
+            "id": 3,
+            "title": "Develop Preference Merging Logic",
+            "description": "Create the logic to combine explicit and implicit preferences with appropriate weighting to generate a comprehensive user preference profile.",
+            "dependencies": [
+              "6.1",
+              "6.2"
+            ],
+            "details": "Implement the mergePreferences method in UserPreferenceService that takes explicit and implicit preferences and combines them using configurable weights. Include conflict resolution strategies when explicit and implicit preferences contradict. Ensure the merged result maintains preference strength indicators and confidence scores.",
+            "status": "pending",
+            "testStrategy": "Unit tests for different merging scenarios including conflicting preferences. Property-based tests to verify merging logic maintains expected properties regardless of input combinations."
+          },
+          {
+            "id": 4,
+            "title": "Implement Preference Update API and Validation",
+            "description": "Create the API endpoints and validation logic for updating user preferences, ensuring that only valid preference data is stored.",
+            "dependencies": [
+              "6.1"
+            ],
+            "details": "Implement the updatePreferences method in UserPreferenceService with comprehensive validation rules. Create REST API endpoints for preference management. Include validation for preference types, values, and constraints. Implement rate limiting to prevent abuse and transaction handling for atomic updates.",
+            "status": "pending",
+            "testStrategy": "Unit tests for validation logic. API tests for all endpoints. Security tests to verify authorization controls. Performance tests for concurrent preference updates."
+          },
+          {
+            "id": 5,
+            "title": "Implement Event Publishing for Preference Changes",
+            "description": "Create a system to notify other services (particularly the feed system) when user preferences change, enabling real-time feed updates.",
+            "dependencies": [
+              "6.4"
+            ],
+            "details": "Implement event publishing in the UserPreferenceService using the eventBus. Create event schemas for preference updates with appropriate payload information. Implement retry logic for failed event publishing. Add configuration for different event channels based on deployment environment.",
+            "status": "pending",
+            "testStrategy": "Unit tests for event publishing logic. Integration tests with mock subscribers to verify event delivery. End-to-end tests to confirm the feed system responds appropriately to preference change events."
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Develop Engagement Tracking System",
+        "description": "Build a system to track user engagement with feed content and use this data to improve feed quality.",
+        "details": "Create an engagement tracking system that:\n1. Captures user interactions (views, clicks, likes, comments, shares, time spent)\n2. Processes and aggregates engagement metrics\n3. Feeds data back to the recommendation algorithm\n4. Provides analytics for content performance\n\nImplementation should include:\n```\nclass EngagementTrackingService {\n  async trackEngagement(userId, contentId, engagementType, metadata = {}) {\n    // Validate inputs\n    this.validateEngagementData(userId, contentId, engagementType, metadata);\n    \n    // Record engagement event\n    const engagementId = await this.engagementRepository.record({\n      userId,\n      contentId,\n      type: engagementType,\n      metadata,\n      timestamp: new Date()\n    });\n    \n    // Update aggregated metrics\n    await this.metricsAggregator.updateMetrics(contentId, engagementType);\n    \n    // Publish event for recommendation system\n    await this.eventBus.publish('engagement.recorded', {\n      userId,\n      contentId,\n      engagementType\n    });\n    \n    return engagementId;\n  }\n}\n```\n\nThe system should use a time-series database for efficient storage and querying of engagement data, with appropriate aggregation for different time windows (hourly, daily, weekly).",
+        "testStrategy": "Unit tests for engagement recording and validation. Integration tests for the full tracking flow and metric updates. Performance testing to ensure the system can handle high volumes of engagement events. Verify that engagement data correctly influences feed content.",
+        "priority": "medium",
+        "dependencies": [
+          5
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Engagement Event Capture System",
+            "description": "Create a system to capture and validate various user engagement events including views, clicks, likes, comments, shares, and time spent on content.",
+            "dependencies": [],
+            "details": "Implement the core EngagementTrackingService class with methods to validate and record engagement events. Create an engagement repository interface and implementation for storing events in a time-series database. Define engagement types and validation rules for each type. Implement the validateEngagementData method to ensure all required fields are present and valid before recording.",
+            "status": "pending",
+            "testStrategy": "Unit tests for input validation with various engagement types. Test handling of invalid inputs. Integration tests with a test database to verify events are properly recorded."
+          },
+          {
+            "id": 2,
+            "title": "Develop Metrics Aggregation Service",
+            "description": "Build a service that processes raw engagement events and aggregates them into meaningful metrics across different time windows.",
+            "dependencies": [
+              "7.1"
+            ],
+            "details": "Implement the MetricsAggregator class that processes engagement events and updates aggregated metrics. Create data structures for storing metrics by content, user, and engagement type. Implement aggregation logic for different time windows (hourly, daily, weekly). Design efficient queries for retrieving aggregated metrics. Include background jobs for periodic re-aggregation of historical data.",
+            "status": "pending",
+            "testStrategy": "Unit tests for aggregation logic with sample engagement data. Performance tests to ensure efficient aggregation of large datasets. Verify correct calculation of metrics across different time windows."
+          },
+          {
+            "id": 3,
+            "title": "Create Event Publishing System for Recommendation Engine",
+            "description": "Develop a system to publish engagement events to the recommendation engine to improve content personalization.",
+            "dependencies": [
+              "7.1"
+            ],
+            "details": "Implement the EventBus interface and a concrete implementation for publishing engagement events. Create event schemas for different engagement types. Implement retry logic and error handling for failed event publishing. Add configuration for event destinations including the recommendation system. Ensure events contain all necessary data for the recommendation algorithm to update user profiles.",
+            "status": "pending",
+            "testStrategy": "Unit tests for event publishing with mock event bus. Integration tests to verify events are properly formatted and delivered. Test error handling and retry mechanisms."
+          },
+          {
+            "id": 4,
+            "title": "Build Analytics Dashboard for Content Performance",
+            "description": "Create an analytics interface that displays engagement metrics and content performance data for content creators and system administrators.",
+            "dependencies": [
+              "7.2"
+            ],
+            "details": "Implement API endpoints to retrieve aggregated engagement metrics. Create data visualization components for different metric types. Implement filtering and sorting capabilities for analyzing engagement data. Add export functionality for reports. Design dashboard views for different user roles (content creators vs. administrators).",
+            "status": "pending",
+            "testStrategy": "Unit tests for API endpoints and data retrieval. Integration tests for dashboard components with mock data. Usability testing to ensure dashboard provides actionable insights."
+          },
+          {
+            "id": 5,
+            "title": "Implement Real-time Engagement Processing Pipeline",
+            "description": "Develop a scalable pipeline for processing high volumes of engagement events in real-time to provide immediate feedback to the recommendation system.",
+            "dependencies": [
+              "7.2",
+              "7.3"
+            ],
+            "details": "Implement a streaming processing pipeline using a technology like Kafka or Kinesis. Create consumers for real-time metrics updates. Implement windowed processing for rolling metrics calculation. Add monitoring and alerting for pipeline health. Design the system to handle peak loads during high traffic periods. Implement circuit breakers to prevent system overload.",
+            "status": "pending",
+            "testStrategy": "Load testing to verify handling of high event volumes. Resilience tests for system recovery after failures. End-to-end tests to verify real-time metrics updates and recommendation system feedback."
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Implement Caching Layer",
+        "description": "Design and implement a caching strategy to improve feed loading performance and reduce database load.",
+        "details": "Develop a multi-level caching system that:\n1. Caches feed results for quick retrieval\n2. Implements cache invalidation strategies when new content is available\n3. Uses distributed caching for scalability\n4. Optimizes cache hit rates through analytics\n\nImplementation should include:\n```\nclass FeedCacheService {\n  constructor(cacheProvider, feedService) {\n    this.cache = cacheProvider;\n    this.feedService = feedService;\n    this.defaultTTL = 300; // 5 minutes\n  }\n  \n  async getFeed(userId, options = {}) {\n    const cacheKey = this.generateCacheKey(userId, options);\n    \n    // Try to get from cache\n    const cachedFeed = await this.cache.get(cacheKey);\n    if (cachedFeed) return cachedFeed;\n    \n    // Generate feed if not in cache\n    const feed = await this.feedService.generateFeed(userId, options);\n    \n    // Store in cache with appropriate TTL\n    const ttl = this.calculateTTL(userId, options);\n    await this.cache.set(cacheKey, feed, ttl);\n    \n    return feed;\n  }\n  \n  async invalidateCache(userId) {\n    // Find all cache keys for this user\n    const userCacheKeys = await this.cache.findKeys(`user:${userId}:*`);\n    \n    // Delete all matching keys\n    await Promise.all(userCacheKeys.map(key => this.cache.delete(key)));\n  }\n}\n```\n\nThe caching system should use Redis or a similar in-memory data store for primary caching, with CDN caching for static content.",
+        "testStrategy": "Unit tests for cache operations and key generation. Integration tests for cache hit/miss scenarios. Performance testing to measure cache effectiveness. Monitoring to track cache hit rates and invalidation frequency.",
+        "priority": "medium",
+        "dependencies": [
+          5
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Redis Cache Provider",
+            "description": "Create a Redis-based cache provider that will serve as the primary caching mechanism for the feed service.",
+            "dependencies": [],
+            "details": "Implement a RedisCache class that handles connection to Redis, provides methods for get, set, delete, and findKeys operations. Include connection pooling, error handling, and reconnection logic. The class should implement a common interface that can be used by the FeedCacheService. Configure Redis with appropriate persistence settings and memory management policies.",
+            "status": "pending",
+            "testStrategy": "Unit tests for all Redis operations. Mock Redis server for testing. Integration tests to verify connection handling and reconnection logic. Performance tests to measure latency of cache operations."
+          },
+          {
+            "id": 2,
+            "title": "Implement FeedCacheService Core Functionality",
+            "description": "Implement the core FeedCacheService class with caching and retrieval logic for feed data.",
+            "dependencies": [
+              "8.1"
+            ],
+            "details": "Complete the implementation of the FeedCacheService class, focusing on the getFeed method, generateCacheKey method, and calculateTTL method. The generateCacheKey should create unique keys based on userId and feed options. The calculateTTL method should determine appropriate cache expiration times based on content type, user activity level, and feed freshness requirements.",
+            "status": "pending",
+            "testStrategy": "Unit tests for cache key generation with different parameters. Tests for TTL calculation logic. Integration tests for the getFeed method with both cache hits and misses. Mock the underlying feedService to test different scenarios."
+          },
+          {
+            "id": 3,
+            "title": "Implement Cache Invalidation Strategy",
+            "description": "Develop a comprehensive cache invalidation system that ensures users see fresh content when available.",
+            "dependencies": [
+              "8.2"
+            ],
+            "details": "Enhance the invalidateCache method to support different invalidation strategies: 1) User-specific invalidation when user preferences change, 2) Content-based invalidation when new content relevant to a user is created, 3) Time-based invalidation for different content types. Implement a pub/sub mechanism to receive invalidation events from other services. Add selective invalidation to avoid clearing the entire cache unnecessarily.",
+            "status": "pending",
+            "testStrategy": "Unit tests for each invalidation strategy. Integration tests with the event system to verify invalidation triggers work correctly. Performance tests to measure invalidation impact on system resources."
+          },
+          {
+            "id": 4,
+            "title": "Implement Distributed Caching with Sharding",
+            "description": "Extend the caching system to support distributed operation across multiple cache servers with data sharding.",
+            "dependencies": [
+              "8.1",
+              "8.2"
+            ],
+            "details": "Implement a sharding strategy that distributes cache data across multiple Redis instances. Create a ShardedRedisCache class that extends the base RedisCache implementation. Implement consistent hashing for key distribution to minimize cache misses during scaling events. Add support for cache replication and failover to ensure high availability.",
+            "status": "pending",
+            "testStrategy": "Unit tests for the sharding algorithm. Integration tests with multiple Redis instances. Chaos testing to verify behavior during node failures. Performance tests comparing single vs. distributed cache setups."
+          },
+          {
+            "id": 5,
+            "title": "Implement Cache Analytics and Optimization",
+            "description": "Create a system to track cache performance metrics and automatically optimize caching parameters.",
+            "dependencies": [
+              "8.2",
+              "8.3",
+              "8.4"
+            ],
+            "details": "Implement a CacheAnalytics class that tracks metrics such as hit rate, miss rate, latency, and memory usage. Add instrumentation to the FeedCacheService to record these metrics. Create an optimization system that adjusts TTL values, cache size limits, and invalidation strategies based on observed patterns. Implement a dashboard to visualize cache performance metrics. Add adaptive caching that learns from usage patterns to predict which items should be cached longer.",
+            "status": "pending",
+            "testStrategy": "Unit tests for metrics collection and calculation. Integration tests for the optimization algorithms. A/B testing different caching strategies to measure performance improvements. Long-running tests to verify adaptive behavior over time."
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Build Content Diversity and Freshness System",
+        "description": "Develop mechanisms to ensure feed content is diverse and fresh, avoiding echo chambers and content staleness.",
+        "details": "Create a system that:\n1. Analyzes content diversity across different dimensions (topics, sources, perspectives)\n2. Injects fresh and diverse content into feeds\n3. Balances familiarity with discovery\n4. Prevents overexposure to similar content\n\nImplementation should include:\n```\nclass ContentDiversityService {\n  async diversifyFeed(userId, candidateItems) {\n    // Get user's recent feed history\n    const recentFeedHistory = await this.feedHistoryRepository.getRecent(userId, 100);\n    \n    // Calculate diversity metrics for candidate items\n    const diversityScores = await this.calculateDiversityScores(candidateItems, recentFeedHistory);\n    \n    // Apply diversity boosting to scores\n    const diversifiedItems = candidateItems.map((item, index) => {\n      const diversityBoost = this.calculateDiversityBoost(diversityScores[index]);\n      return {\n        ...item,\n        score: item.score * diversityBoost\n      };\n    });\n    \n    // Ensure minimum representation of fresh content\n    return this.ensureFreshContentQuota(diversifiedItems);\n  }\n  \n  calculateDiversityBoost(diversityScore) {\n    // Higher boost for more diverse content\n    return 1 + (diversityScore * 0.2); // Up to 20% boost for diverse content\n  }\n}\n```",
+        "testStrategy": "Unit tests for diversity calculations and scoring. Integration tests with sample user histories to verify diversity improvements. A/B testing to measure user engagement with more diverse feeds. User surveys to gather qualitative feedback on content variety.",
+        "priority": "medium",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Content Diversity Analysis Service",
+            "description": "Create a service that analyzes content diversity across different dimensions including topics, sources, and perspectives. This service will calculate diversity scores for content items relative to a user's recent feed history.",
+            "dependencies": [],
+            "details": "class ContentDiversityAnalyzer {\n  constructor(contentRepository, taxonomyService) {\n    this.contentRepository = contentRepository;\n    this.taxonomyService = taxonomyService;\n  }\n\n  async calculateDiversityScores(candidateItems, recentFeedHistory) {\n    const diversityScores = [];\n    \n    // Extract features from recent history\n    const historicalFeatures = await this.extractContentFeatures(recentFeedHistory);\n    const historicalTopics = this.aggregateTopics(historicalFeatures);\n    const historicalSources = this.aggregateSources(historicalFeatures);\n    const historicalPerspectives = this.aggregatePerspectives(historicalFeatures);\n    \n    // Calculate diversity score for each candidate item\n    for (const item of candidateItems) {\n      const itemFeatures = await this.extractContentFeatures([item]);\n      \n      // Calculate topic diversity (how different is this topic from recent history)\n      const topicDiversity = this.calculateTopicDiversity(itemFeatures[0].topics, historicalTopics);\n      \n      // Calculate source diversity\n      const sourceDiversity = this.calculateSourceDiversity(itemFeatures[0].source, historicalSources);\n      \n      // Calculate perspective diversity\n      const perspectiveDiversity = this.calculatePerspectiveDiversity(itemFeatures[0].perspective, historicalPerspectives);\n      \n      // Combine into overall diversity score (weighted average)\n      const overallDiversity = (topicDiversity * 0.4) + (sourceDiversity * 0.3) + (perspectiveDiversity * 0.3);\n      \n      diversityScores.push(overallDiversity);\n    }\n    \n    return diversityScores;\n  }\n  \n  async extractContentFeatures(contentItems) {\n    // Extract topics, sources, and other features from content items\n    // This might involve calling content analysis services or using pre-computed metadata\n    return contentItems.map(item => ({\n      id: item.id,\n      topics: item.topics || [],\n      source: item.source,\n      perspective: item.perspective || 'neutral',\n      timestamp: item.createdAt\n    }));\n  }\n  \n  // Helper methods for diversity calculations\n  calculateTopicDiversity(itemTopics, historicalTopics) {\n    // Calculate how different this item's topics are from historical distribution\n    // Higher score = more diverse/different from what user has seen recently\n    // Implementation could use Jaccard distance or other similarity metrics\n  }\n  \n  // Similar methods for source and perspective diversity\n}",
+            "status": "pending",
+            "testStrategy": "Unit test each diversity calculation method with various scenarios (completely different content, similar content, identical content). Test with mock user histories of varying diversity. Verify that the diversity scores correctly identify content that adds variety to a feed."
+          },
+          {
+            "id": 2,
+            "title": "Build Fresh Content Identification System",
+            "description": "Develop a system that identifies and prioritizes fresh content, ensuring new and timely items are properly represented in feeds. This system will track content age and popularity trends to determine freshness.",
+            "dependencies": [],
+            "details": "class FreshnessService {\n  constructor(contentRepository, trendingService) {\n    this.contentRepository = contentRepository;\n    this.trendingService = trendingService;\n  }\n  \n  async calculateFreshnessScores(candidateItems) {\n    const freshnessScores = [];\n    const now = new Date();\n    \n    for (const item of candidateItems) {\n      // Base freshness on recency (time decay function)\n      const ageInHours = (now - new Date(item.createdAt)) / (1000 * 60 * 60);\n      let freshnessScore = this.calculateRecencyScore(ageInHours);\n      \n      // Boost freshness for trending or timely content\n      const trendingScore = await this.trendingService.getTrendingScore(item.id);\n      freshnessScore = freshnessScore * (1 + (trendingScore * 0.5));\n      \n      // Consider content seasonality or time-relevance if applicable\n      if (item.timeRelevant) {\n        freshnessScore *= 1.2; // 20% boost for time-relevant content\n      }\n      \n      freshnessScores.push(freshnessScore);\n    }\n    \n    return freshnessScores;\n  }\n  \n  calculateRecencyScore(ageInHours) {\n    // Exponential decay function for recency\n    // Very new content (< 1 hour) gets highest score\n    // Score gradually decreases as content ages\n    return Math.exp(-0.05 * ageInHours);\n  }\n  \n  identifyStaleContent(userFeedHistory, timeThresholdHours = 72) {\n    // Identify content types that have been overexposed in user's feed\n    const now = new Date();\n    const recentHistory = userFeedHistory.filter(item => {\n      const ageInHours = (now - new Date(item.seenAt)) / (1000 * 60 * 60);\n      return ageInHours <= timeThresholdHours;\n    });\n    \n    // Group by content attributes to find overexposed categories\n    // Return list of content types/sources that should be limited\n  }\n}",
+            "status": "pending",
+            "testStrategy": "Test the freshness calculation with content of varying ages. Verify that trending content receives appropriate boosts. Test the stale content identification with simulated user histories. Ensure time-based decay functions work as expected across different time ranges."
+          },
+          {
+            "id": 3,
+            "title": "Implement Echo Chamber Prevention Algorithm",
+            "description": "Create an algorithm that identifies and prevents echo chambers by ensuring users are exposed to a variety of perspectives and content sources, even when their engagement patterns might naturally lead to homogeneous content.",
+            "dependencies": [
+              "9.1"
+            ],
+            "details": "class EchoChamberPreventionService {\n  constructor(userProfileService, contentDiversityAnalyzer) {\n    this.userProfileService = userProfileService;\n    this.contentDiversityAnalyzer = contentDiversityAnalyzer;\n  }\n  \n  async calculateEchoChamberRisk(userId, recentFeedHistory) {\n    // Analyze user's recent engagement patterns\n    const userEngagements = await this.userProfileService.getUserEngagements(userId, 100);\n    \n    // Calculate topic concentration (how concentrated in few topics)\n    const topicConcentration = this.calculateTopicConcentration(userEngagements);\n    \n    // Calculate source concentration (how concentrated in few sources)\n    const sourceConcentration = this.calculateSourceConcentration(userEngagements);\n    \n    // Calculate perspective bias (how skewed toward certain perspectives)\n    const perspectiveBias = this.calculatePerspectiveBias(userEngagements);\n    \n    // Combined echo chamber risk score (higher = more at risk)\n    return (topicConcentration * 0.4) + (sourceConcentration * 0.3) + (perspectiveBias * 0.3);\n  }\n  \n  async applyEchoChamberPrevention(userId, candidateItems, recentFeedHistory) {\n    // Calculate user's echo chamber risk\n    const echoChamberRisk = await this.calculateEchoChamberRisk(userId, recentFeedHistory);\n    \n    if (echoChamberRisk > 0.7) { // High risk threshold\n      // Get diversity scores for candidate items\n      const diversityScores = await this.contentDiversityAnalyzer.calculateDiversityScores(\n        candidateItems, recentFeedHistory\n      );\n      \n      // Apply stronger diversity boosting for high-risk users\n      return candidateItems.map((item, index) => {\n        const diversityBoost = 1 + (diversityScores[index] * 0.4 * echoChamberRisk);\n        return {\n          ...item,\n          score: item.score * diversityBoost\n        };\n      });\n    }\n    \n    // For low-risk users, apply minimal or no adjustment\n    return candidateItems;\n  }\n  \n  // Helper methods for concentration calculations\n  calculateTopicConcentration(engagements) {\n    // Calculate how concentrated user engagement is across topics\n    // Higher value = more concentrated in fewer topics = higher echo chamber risk\n  }\n  \n  // Similar methods for source and perspective concentration\n}",
+            "status": "pending",
+            "testStrategy": "Test with simulated user profiles exhibiting different levels of echo chamber risk. Verify that the algorithm correctly identifies high-risk users and applies appropriate diversity boosting. Test edge cases like users with very narrow or very broad engagement patterns."
+          },
+          {
+            "id": 4,
+            "title": "Develop Content Quota and Balancing System",
+            "description": "Create a system that ensures proper balance between familiar and discovery content by implementing quotas for different content types, sources, and freshness levels in user feeds.",
+            "dependencies": [
+              "9.2"
+            ],
+            "details": "class ContentBalancingService {\n  constructor(userPreferenceService) {\n    this.userPreferenceService = userPreferenceService;\n  }\n  \n  async applyContentQuotas(userId, rankedItems) {\n    // Get user preferences for content balance\n    const userPreferences = await this.userPreferenceService.getPreferences(userId);\n    \n    // Default quotas if user has no specific preferences\n    const quotas = userPreferences.contentQuotas || {\n      fresh: 0.3, // 30% fresh content\n      familiar: 0.5, // 50% familiar/preferred content\n      discovery: 0.2 // 20% discovery content\n    };\n    \n    // Categorize items\n    const categorizedItems = this.categorizeItems(rankedItems, userId);\n    \n    // Calculate how many items of each type to include\n    const totalItems = rankedItems.length;\n    const freshQuota = Math.ceil(totalItems * quotas.fresh);\n    const familiarQuota = Math.ceil(totalItems * quotas.familiar);\n    const discoveryQuota = Math.ceil(totalItems * quotas.discovery);\n    \n    // Build balanced feed\n    const balancedFeed = [\n      ...this.selectTopItems(categorizedItems.fresh, freshQuota),\n      ...this.selectTopItems(categorizedItems.familiar, familiarQuota),\n      ...this.selectTopItems(categorizedItems.discovery, discoveryQuota)\n    ];\n    \n    // Re-rank the balanced feed items based on their original scores\n    return balancedFeed.sort((a, b) => b.score - a.score);\n  }\n  \n  categorizeItems(items, userId) {\n    // Categorize items as fresh, familiar, or discovery based on content attributes\n    // This is a simplified implementation - real version would use more sophisticated logic\n    return {\n      fresh: items.filter(item => item.freshness > 0.7),\n      familiar: items.filter(item => item.userRelevance > 0.7),\n      discovery: items.filter(item => item.discoveryScore > 0.7)\n    };\n  }\n  \n  selectTopItems(items, count) {\n    // Select the top N items from a category based on score\n    return items.sort((a, b) => b.score - a.score).slice(0, count);\n  }\n  \n  ensureMinimumSourceDiversity(feed, minSources = 3) {\n    // Ensure feed has content from at least N different sources\n    const sources = new Set(feed.map(item => item.source));\n    \n    if (sources.size < minSources) {\n      // Implementation to replace some items to increase source diversity\n    }\n    \n    return feed;\n  }\n}",
+            "status": "pending",
+            "testStrategy": "Test with various user preference profiles and content pools. Verify that the resulting feeds meet the specified quotas. Test edge cases where there might not be enough content in certain categories. Measure diversity metrics before and after applying the balancing system."
+          },
+          {
+            "id": 5,
+            "title": "Integrate Diversity and Freshness System with Feed Generation",
+            "description": "Integrate all components of the diversity and freshness system with the main feed generation algorithm, ensuring proper scoring, ranking, and presentation of diverse content in user feeds.",
+            "dependencies": [
+              "9.1",
+              "9.2",
+              "9.3",
+              "9.4"
+            ],
+            "details": "class ContentDiversityService {\n  constructor(\n    contentDiversityAnalyzer,\n    freshnessService,\n    echoChamberPreventionService,\n    contentBalancingService,\n    feedHistoryRepository\n  ) {\n    this.contentDiversityAnalyzer = contentDiversityAnalyzer;\n    this.freshnessService = freshnessService;\n    this.echoChamberPreventionService = echoChamberPreventionService;\n    this.contentBalancingService = contentBalancingService;\n    this.feedHistoryRepository = feedHistoryRepository;\n  }\n  \n  async diversifyFeed(userId, candidateItems) {\n    // Get user's recent feed history\n    const recentFeedHistory = await this.feedHistoryRepository.getRecent(userId, 100);\n    \n    // Step 1: Calculate diversity scores for candidate items\n    const diversityScores = await this.contentDiversityAnalyzer.calculateDiversityScores(\n      candidateItems, recentFeedHistory\n    );\n    \n    // Step 2: Calculate freshness scores\n    const freshnessScores = await this.freshnessService.calculateFreshnessScores(candidateItems);\n    \n    // Step 3: Apply diversity and freshness boosting to scores\n    let diversifiedItems = candidateItems.map((item, index) => {\n      const diversityBoost = this.calculateDiversityBoost(diversityScores[index]);\n      const freshnessBoost = this.calculateFreshnessBoost(freshnessScores[index]);\n      \n      return {\n        ...item,\n        diversityScore: diversityScores[index],\n        freshnessScore: freshnessScores[index],\n        score: item.score * diversityBoost * freshnessBoost\n      };\n    });\n    \n    // Step 4: Apply echo chamber prevention for at-risk users\n    diversifiedItems = await this.echoChamberPreventionService.applyEchoChamberPrevention(\n      userId, diversifiedItems, recentFeedHistory\n    );\n    \n    // Step 5: Apply content quotas and balancing\n    const balancedFeed = await this.contentBalancingService.applyContentQuotas(\n      userId, diversifiedItems\n    );\n    \n    // Step 6: Final ranking and return\n    return balancedFeed.sort((a, b) => b.score - a.score);\n  }\n  \n  calculateDiversityBoost(diversityScore) {\n    // Higher boost for more diverse content\n    return 1 + (diversityScore * 0.2); // Up to 20% boost for diverse content\n  }\n  \n  calculateFreshnessBoost(freshnessScore) {\n    // Higher boost for fresher content\n    return 1 + (freshnessScore * 0.3); // Up to 30% boost for fresh content\n  }\n  \n  // Method to log diversity metrics for monitoring and improvement\n  async logDiversityMetrics(userId, finalFeed) {\n    // Calculate and log diversity metrics for the final feed\n    // This data can be used for monitoring and improving the system\n  }\n}",
+            "status": "pending",
+            "testStrategy": "End-to-end testing with realistic user profiles and content pools. A/B testing comparing feeds with and without diversity enhancements. Measure key metrics like content diversity, user engagement, and time spent. Monitor for any unintended consequences like decreased relevance or engagement."
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Implement Analytics and Monitoring",
+        "description": "Build a comprehensive analytics and monitoring system to track feed performance and user engagement metrics.",
+        "details": "Develop an analytics system that:\n1. Tracks key performance indicators for the feed system\n2. Monitors user engagement and satisfaction\n3. Provides dashboards for visualizing metrics\n4. Alerts on anomalies or performance issues\n\nImplementation should include:\n```\nclass FeedAnalyticsService {\n  async recordFeedView(userId, feedItems, metadata = {}) {\n    // Record feed impression\n    await this.analyticsRepository.recordEvent('feed_view', {\n      userId,\n      timestamp: new Date(),\n      feedSize: feedItems.length,\n      feedItemIds: feedItems.map(item => item.id),\n      metadata\n    });\n    \n    // Update aggregated metrics\n    await this.updateDailyMetrics('feed_views');\n  }\n  \n  async generateDailyReport() {\n    const metrics = await this.analyticsRepository.getAggregatedMetrics('daily');\n    \n    return {\n      totalViews: metrics.feed_views || 0,\n      averageEngagementRate: this.calculateEngagementRate(metrics),\n      contentDiversityScore: await this.calculateDiversityScore(),\n      topPerformingContent: await this.getTopPerformingContent(10),\n      userRetentionRate: await this.calculateRetentionRate()\n    };\n  }\n}\n```\n\nThe system should use a combination of real-time metrics processing and batch analytics, with visualization through a dashboard tool like Grafana or Tableau.",
+        "testStrategy": "Unit tests for metrics calculations and aggregations. Integration tests for the full analytics pipeline. Verification that dashboards accurately reflect system behavior. Alerting tests to ensure proper notification of issues.",
+        "priority": "low",
+        "dependencies": [
+          5,
+          7
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Event Tracking and Data Collection",
+            "description": "Create the core analytics service to track and store user interactions and system events. This includes implementing the event recording functionality and defining the schema for different event types.",
+            "dependencies": [],
+            "details": "Implement the `FeedAnalyticsService` with methods to record various events like feed views, item clicks, and user engagement metrics. Create an `AnalyticsRepository` class to handle data storage. Define event schemas for different interaction types. Implement batch processing for high-volume events. Use a time-series database or analytics-optimized storage solution for efficient querying.",
+            "status": "pending",
+            "testStrategy": "Unit test each event recording method. Create integration tests that verify events are properly stored. Test performance under high event volume. Verify data integrity and schema validation."
+          },
+          {
+            "id": 2,
+            "title": "Build Metrics Aggregation System",
+            "description": "Develop a system to aggregate raw event data into meaningful metrics and KPIs. This includes daily, weekly, and monthly aggregations as well as real-time counters.",
+            "dependencies": [
+              "10.1"
+            ],
+            "details": "Implement the metrics calculation methods in `FeedAnalyticsService` including `updateDailyMetrics`, `calculateEngagementRate`, `calculateDiversityScore`, and `calculateRetentionRate`. Create scheduled jobs for regular aggregation of metrics. Implement caching for frequently accessed metrics. Design the database schema to efficiently store both raw events and aggregated metrics.",
+            "status": "pending",
+            "testStrategy": "Unit test metric calculation algorithms. Create integration tests with sample data sets to verify aggregation accuracy. Test the scheduled jobs for reliability. Benchmark performance of metric queries."
+          },
+          {
+            "id": 3,
+            "title": "Implement Reporting and Dashboard Integration",
+            "description": "Create reporting endpoints and integration with visualization tools to display analytics data in dashboards. Implement the report generation functionality.",
+            "dependencies": [
+              "10.2"
+            ],
+            "details": "Implement the `generateDailyReport` method and other reporting functions. Create REST API endpoints to expose metrics data. Develop integration with Grafana or Tableau using their respective APIs. Create dashboard templates with the most important KPIs. Implement data export functionality for offline analysis. Add user-specific reporting views based on permissions.",
+            "status": "pending",
+            "testStrategy": "Test report generation with various time ranges and filters. Verify dashboard integration by checking data consistency between the system and visualization tools. Test API endpoints for performance and correct data formatting."
+          },
+          {
+            "id": 4,
+            "title": "Develop Anomaly Detection and Alerting System",
+            "description": "Create a system to detect anomalies in metrics and performance data, and send alerts when predefined thresholds are exceeded or unusual patterns are detected.",
+            "dependencies": [
+              "10.2"
+            ],
+            "details": "Implement statistical models for anomaly detection on key metrics. Create configurable alert thresholds for different metrics. Develop notification channels (email, Slack, SMS) for alerts. Implement alert severity levels and escalation policies. Create a UI for alert configuration and management. Add historical tracking of alerts for pattern analysis.",
+            "status": "pending",
+            "testStrategy": "Test anomaly detection with synthetic data including normal and abnormal patterns. Verify alert triggering with threshold violations. Test all notification channels. Create integration tests for the full alerting pipeline."
+          },
+          {
+            "id": 5,
+            "title": "Implement A/B Testing Framework for Feed Performance",
+            "description": "Develop a framework to conduct A/B tests on feed algorithms and UI changes, measuring their impact on user engagement and satisfaction metrics.",
+            "dependencies": [
+              "10.1",
+              "10.3"
+            ],
+            "details": "Create an experiment configuration system to define test groups and variants. Implement user assignment to test groups with proper randomization and consistency. Develop metrics comparison tools to evaluate experiment results. Create statistical significance calculators for experiment outcomes. Implement a dashboard for experiment monitoring and results visualization. Add capability to gradually roll out successful changes.",
+            "status": "pending",
+            "testStrategy": "Test the randomization and user assignment logic. Verify metrics are correctly segmented by test groups. Create end-to-end tests for the full experiment lifecycle. Test the statistical analysis components with known data sets."
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "Develop A/B Testing Framework",
+        "description": "Create a framework for A/B testing different feed algorithms, layouts, and features to optimize user engagement.",
+        "details": "Build an A/B testing system that:\n1. Assigns users to test groups\n2. Applies different feed algorithms or parameters to each group\n3. Measures and compares performance metrics\n4. Provides statistical analysis of results\n\nImplementation should include:\n```\nclass ABTestingService {\n  async assignUserToExperiment(userId, experimentId) {\n    // Get experiment configuration\n    const experiment = await this.experimentRepository.getById(experimentId);\n    if (!experiment.isActive) return null;\n    \n    // Check if user is already assigned\n    const existingAssignment = await this.assignmentRepository.getAssignment(userId, experimentId);\n    if (existingAssignment) return existingAssignment.variant;\n    \n    // Assign to variant based on consistent hashing\n    const variantIndex = this.hashUserToVariant(userId, experiment.variants.length);\n    const variant = experiment.variants[variantIndex];\n    \n    // Record assignment\n    await this.assignmentRepository.createAssignment(userId, experimentId, variant);\n    \n    return variant;\n  }\n  \n  async getExperimentResults(experimentId) {\n    const experiment = await this.experimentRepository.getById(experimentId);\n    const metrics = await this.metricsRepository.getMetricsByExperiment(experimentId);\n    \n    // Calculate statistical significance\n    const analysis = this.performStatisticalAnalysis(metrics, experiment.variants);\n    \n    return {\n      experiment,\n      variantPerformance: analysis.variantPerformance,\n      winner: analysis.winner,\n      confidence: analysis.confidence\n    };\n  }\n}\n```",
+        "testStrategy": "Unit tests for user assignment and variant selection. Integration tests for the full experiment flow. Statistical validation of analysis methods. Verification that experiment results correctly influence product decisions.",
+        "priority": "low",
+        "dependencies": [
+          4,
+          10
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Experiment Configuration Repository",
+            "description": "Create a repository for storing and retrieving A/B test experiment configurations, including variants, targeting rules, and experiment status.",
+            "dependencies": [],
+            "details": "Create an ExperimentRepository class that handles CRUD operations for experiment configurations. The repository should store experiment metadata including name, description, start/end dates, variants, and targeting criteria. Implement methods for creating, updating, retrieving, and listing active experiments. Each experiment should have a unique ID, a set of variants (control and treatment groups), and configuration parameters that define what changes for each variant.",
+            "status": "pending",
+            "testStrategy": "Unit test CRUD operations with mock database. Test edge cases like retrieving inactive experiments and handling invalid experiment IDs. Verify that experiment configurations can be properly serialized and deserialized."
+          },
+          {
+            "id": 2,
+            "title": "Develop User Assignment Service",
+            "description": "Build the service that consistently assigns users to experiment variants and persists these assignments.",
+            "dependencies": [
+              "11.1"
+            ],
+            "details": "Implement the assignUserToExperiment method in the ABTestingService class that deterministically assigns users to experiment variants using consistent hashing. Create an AssignmentRepository to store and retrieve user assignments. Ensure that users remain in the same variant throughout an experiment unless explicitly reassigned. Implement bucketing logic that evenly distributes users across variants while maintaining the ability to target specific user segments based on attributes.",
+            "status": "pending",
+            "testStrategy": "Test consistent assignment across multiple calls. Verify distribution of users across variants matches expected percentages. Test assignment persistence and retrieval. Ensure hash function provides even distribution."
+          },
+          {
+            "id": 3,
+            "title": "Create Metrics Collection System",
+            "description": "Develop a system to collect and aggregate performance metrics for each experiment variant.",
+            "dependencies": [
+              "11.2"
+            ],
+            "details": "Implement a MetricsRepository class that captures and stores performance data for each experiment variant. Create methods to record metrics like click-through rates, engagement time, conversion events, and custom KPIs. Design the system to efficiently aggregate metrics by experiment, variant, and time period. Include functionality to normalize metrics based on user counts in each variant and to filter outliers.",
+            "status": "pending",
+            "testStrategy": "Test metric recording accuracy and aggregation logic. Verify metrics can be properly segmented by experiment and variant. Test performance with large volumes of metric data. Ensure metrics system can handle custom event types."
+          },
+          {
+            "id": 4,
+            "title": "Implement Statistical Analysis Engine",
+            "description": "Build the statistical analysis component that evaluates experiment results and determines statistical significance.",
+            "dependencies": [
+              "11.3"
+            ],
+            "details": "Implement the performStatisticalAnalysis method that compares metrics between experiment variants. Include calculations for p-values, confidence intervals, and effect sizes. Support multiple statistical methods appropriate for different metric types (e.g., t-tests for continuous metrics, chi-square for conversion rates). Implement visualization data preparation for experiment results. Add functionality to detect when an experiment has reached statistical significance.",
+            "status": "pending",
+            "testStrategy": "Test statistical calculations against known datasets with predetermined significance. Verify correct handling of edge cases like small sample sizes or highly skewed distributions. Test that confidence calculations are accurate and properly interpreted."
+          },
+          {
+            "id": 5,
+            "title": "Create Experiment Results Dashboard",
+            "description": "Develop a dashboard interface for viewing experiment results, statistical analysis, and making decisions based on experiment outcomes.",
+            "dependencies": [
+              "11.4"
+            ],
+            "details": "Implement the getExperimentResults method that returns comprehensive experiment results. Create a data structure that includes experiment details, variant performance metrics, statistical analysis results, and recommendations. Design the output to support visualization in a dashboard. Include functionality to export results and generate reports. Add features to help stakeholders make decisions based on experiment outcomes, such as recommended actions and projected impact of implementing winning variants.",
+            "status": "pending",
+            "testStrategy": "Test the dashboard with various experiment scenarios including clear winners, inconclusive results, and edge cases. Verify that all relevant metrics and analysis are included in the results. Test the usability of the dashboard with stakeholders to ensure it effectively communicates experiment outcomes."
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Implement Feed Personalization Service",
+        "description": "Develop a service that personalizes feed content based on user preferences, behavior, and context.",
+        "details": "Create a personalization service that:\n1. Combines explicit and implicit user preferences\n2. Adapts to changing user interests over time\n3. Considers contextual factors (time of day, device, location)\n4. Balances personalization with content diversity\n\nImplementation should include:\n```\nclass FeedPersonalizationService {\n  async personalizeItems(userId, feedItems) {\n    // Get user preferences and context\n    const preferences = await this.preferenceService.getPreferences(userId);\n    const userContext = await this.contextService.getUserContext(userId);\n    const userHistory = await this.userHistoryService.getRecentActivity(userId);\n    \n    // Score each item for personalized relevance\n    const scoredItems = await Promise.all(feedItems.map(async (item) => {\n      const baseScore = item.score || 1.0;\n      \n      // Calculate personalization factors\n      const topicRelevance = this.calculateTopicRelevance(item, preferences.topics);\n      const sourceAffinity = this.calculateSourceAffinity(item, userHistory);\n      const contextualRelevance = this.calculateContextualRelevance(item, userContext);\n      \n      // Combine factors with weights\n      const personalizationMultiplier = (\n        (topicRelevance * 0.5) +\n        (sourceAffinity * 0.3) +\n        (contextualRelevance * 0.2)\n      );\n      \n      return {\n        ...item,\n        score: baseScore * personalizationMultiplier,\n        personalizationFactors: {\n          topicRelevance,\n          sourceAffinity,\n          contextualRelevance\n        }\n      };\n    }));\n    \n    // Sort by personalized score\n    return scoredItems.sort((a, b) => b.score - a.score);\n  }\n}\n```",
+        "testStrategy": "Unit tests for individual personalization factors. Integration tests with sample user profiles to verify personalization effects. A/B testing to measure engagement improvements from personalization. User feedback collection to validate personalization quality.",
+        "priority": "medium",
+        "dependencies": [
+          4,
+          6,
+          7
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement User Preference and Context Integration",
+            "description": "Create methods to fetch and integrate user preferences, context, and history data from respective services for personalization calculations.",
+            "dependencies": [],
+            "details": "Implement the initial setup of the FeedPersonalizationService class with dependency injection for required services (preferenceService, contextService, userHistoryService). Create methods to fetch user data and properly handle async operations. Ensure proper error handling for cases where services might be unavailable.",
+            "status": "pending",
+            "testStrategy": "Unit test the integration with mock services. Verify correct data fetching and error handling. Test edge cases like missing user preferences or context."
+          },
+          {
+            "id": 2,
+            "title": "Implement Topic Relevance Calculation",
+            "description": "Develop the algorithm to calculate topic relevance between feed items and user preferences.",
+            "dependencies": [
+              "12.1"
+            ],
+            "details": "Implement the calculateTopicRelevance method that compares item topics/tags with user preferred topics. Use a similarity scoring approach that considers both exact matches and related topics. Consider implementing a weighted scoring system where more specific topic matches receive higher scores than general category matches.",
+            "status": "pending",
+            "testStrategy": "Unit test with various combinations of item topics and user preferences. Verify that items with topics matching user preferences receive higher scores."
+          },
+          {
+            "id": 3,
+            "title": "Implement Source Affinity and Contextual Relevance",
+            "description": "Create algorithms to calculate source affinity based on user history and contextual relevance based on user context.",
+            "dependencies": [
+              "12.1"
+            ],
+            "details": "Implement calculateSourceAffinity method that evaluates user's past interactions with content sources to determine affinity scores. Implement calculateContextualRelevance method that factors in time of day, device type, location, and other contextual factors to determine relevance. Both methods should return normalized scores between 0 and 1.",
+            "status": "pending",
+            "testStrategy": "Unit test each algorithm with various input scenarios. For source affinity, test with different user history patterns. For contextual relevance, test with different time/device/location contexts."
+          },
+          {
+            "id": 4,
+            "title": "Implement Personalized Scoring and Ranking",
+            "description": "Develop the core personalization algorithm that combines multiple factors to calculate a final personalized score for each feed item.",
+            "dependencies": [
+              "12.2",
+              "12.3"
+            ],
+            "details": "Implement the scoring logic in personalizeItems method that combines topicRelevance, sourceAffinity, and contextualRelevance with appropriate weights. Add logic to handle the base score of items and apply the personalization multiplier. Implement sorting logic to rank items by final score. Ensure the algorithm maintains a balance between personalization and diversity.",
+            "status": "pending",
+            "testStrategy": "Unit test the scoring algorithm with various combinations of input factors. Integration test with sample user profiles and feed items to verify expected ranking outcomes."
+          },
+          {
+            "id": 5,
+            "title": "Implement Diversity and Freshness Controls",
+            "description": "Add mechanisms to ensure content diversity and freshness in personalized feeds to prevent filter bubbles and content staleness.",
+            "dependencies": [
+              "12.4"
+            ],
+            "details": "Extend the personalizeItems method to include diversity controls that prevent too many similar items from dominating the feed. Implement a time decay factor that gradually reduces the score of older content. Add a randomization factor to occasionally introduce new content types or sources that the user hasn't interacted with before. Create configuration options to adjust the balance between personalization and diversity.",
+            "status": "pending",
+            "testStrategy": "Test with simulated user profiles that have strong preferences for specific content. Verify that the resulting feed still contains diverse content types and sources. Test that newer content generally ranks higher than older content with similar relevance scores."
+          }
+        ]
+      }
+    ],
+    "metadata": {
+      "created": "2025-08-08T09:50:36.213Z",
+      "updated": "2025-08-08T10:06:59.127Z",
+      "description": "Tasks for master context"
+    }
+  }
+}
