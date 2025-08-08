@@ -194,7 +194,7 @@ class DefaultFeedGenerationService(
                 contentCount = 0,
                 candidateCount = candidatesEvaluated,
                 parameters = mapOf(
-                    "error" to exception.message,
+                    "error" to (exception.message ?: "Unknown error"),
                     "error_type" to exception.javaClass.simpleName
                 )
             )

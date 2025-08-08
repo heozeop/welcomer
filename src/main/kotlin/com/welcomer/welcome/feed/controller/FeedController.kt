@@ -27,30 +27,54 @@ class FeedController(
         @RequestParam(required = false) cursor: String? = null,
         @RequestParam(required = false) algorithmId: String? = null,
         @RequestParam(required = false, defaultValue = "false") refresh: Boolean = false,
-        @RequestHeader("User-ID") userId: String
+        @RequestParam(required = false) contentType: String? = null,
+        @RequestParam(required = false) topic: String? = null,
+        @RequestParam(required = false) source: String? = null,
+        @RequestParam(required = false) sort: String? = null,
+        request: jakarta.servlet.http.HttpServletRequest
     ): ResponseEntity<FeedResponse> {
+        // Extract user ID from request attributes (set by middleware)
+        val userId = request.getAttribute("userId") as? String
+            ?: return ResponseEntity.status(401).body(
+                FeedResponse.error("User authentication required")
+            )
         return try {
             val feedTypeEnum = FeedType.valueOf(feedType.uppercase())
+            
+            // Build filter parameters
+            val filters = buildMap<String, Any> {
+                contentType?.let { put("content_type", it) }
+                topic?.let { put("topic", it) }
+                source?.let { put("source", it) }
+                sort?.let { put("sort", it) }
+            }
+            
+            // Create cache key including filters
+            val cacheKey = createCacheKey(userId, feedTypeEnum, limit, cursor, filters)
             
             // Check cache first (unless refresh is requested)
             if (!refresh) {
                 cacheService.getCachedFeed(userId, feedTypeEnum)?.let { cachedFeed ->
-                    return ResponseEntity.ok(FeedResponse.from(cachedFeed, fromCache = true))
+                    // Only use cache if filters match
+                    if (filtersMatch(cachedFeed, filters)) {
+                        return ResponseEntity.ok(FeedResponse.from(cachedFeed, fromCache = true))
+                    }
                 }
             }
 
-            // Generate new feed
-            val request = FeedGenerationRequest(
+            // Generate new feed with filters
+            val feedRequest = FeedGenerationRequest(
                 userId = userId,
                 feedType = feedTypeEnum,
                 limit = minOf(limit, 100), // Cap at 100
                 cursor = cursor,
                 algorithmId = algorithmId,
+                parameters = filters,
                 refreshForced = refresh
             )
 
             val generatedFeed = performanceService.withPerformanceMonitoring("generate_feed") {
-                feedGenerationService.generateFeed(request)
+                feedGenerationService.generateFeed(feedRequest)
             }
 
             // Cache the generated feed
@@ -86,13 +110,72 @@ class FeedController(
     }
 
     /**
-     * Refresh specific feed type for user
+     * Get feed refresh - only new content since timestamp
+     */
+    @GetMapping("/{feedType}/refresh")
+    suspend fun getRefresh(
+        @PathVariable feedType: String,
+        @RequestParam since: String, // ISO timestamp or cursor
+        @RequestParam(required = false) limit: Int = 20,
+        request: jakarta.servlet.http.HttpServletRequest
+    ): ResponseEntity<FeedResponse> {
+        val userId = request.getAttribute("userId") as? String
+            ?: return ResponseEntity.status(401).body(
+                FeedResponse.error("User authentication required")
+            )
+
+        return try {
+            val feedTypeEnum = FeedType.valueOf(feedType.uppercase())
+            val sinceInstant = try {
+                java.time.Instant.parse(since)
+            } catch (e: Exception) {
+                return ResponseEntity.badRequest().body(
+                    FeedResponse.error("Invalid since parameter. Use ISO timestamp format.")
+                )
+            }
+
+            // Generate refresh feed (only new content)
+            val feedRequest = FeedGenerationRequest(
+                userId = userId,
+                feedType = feedTypeEnum,
+                limit = minOf(limit, 50), // Smaller limit for refreshes
+                parameters = mapOf("since" to sinceInstant.toString()),
+                refreshForced = true // Always generate fresh for refresh
+            )
+
+            val generatedFeed = performanceService.withPerformanceMonitoring("refresh_feed") {
+                feedGenerationService.generateFeed(feedRequest)
+            }
+
+            ResponseEntity.ok(FeedResponse.from(generatedFeed))
+
+        } catch (e: IllegalArgumentException) {
+            ResponseEntity.badRequest().body(
+                FeedResponse.error("Invalid feed type: $feedType")
+            )
+        } catch (e: Exception) {
+            ResponseEntity.internalServerError().body(
+                FeedResponse.error("Failed to refresh feed: ${e.message}")
+            )
+        }
+    }
+
+    /**
+     * Invalidate cache for specific feed type
      */
     @PostMapping("/{feedType}/refresh")
     suspend fun refreshFeed(
         @PathVariable feedType: String,
-        @RequestHeader("User-ID") userId: String
+        request: jakarta.servlet.http.HttpServletRequest
     ): ResponseEntity<RefreshResponse> {
+        val userId = request.getAttribute("userId") as? String
+            ?: return ResponseEntity.status(401).body(
+                RefreshResponse(
+                    success = false,
+                    message = "User authentication required",
+                    timestamp = Instant.now()
+                )
+            )
         return try {
             val feedTypeEnum = FeedType.valueOf(feedType.uppercase())
             
@@ -101,7 +184,7 @@ class FeedController(
             
             ResponseEntity.ok(RefreshResponse(
                 success = true,
-                message = "Feed refresh initiated for $feedType",
+                message = "Feed cache invalidated for $feedType",
                 timestamp = Instant.now()
             ))
             
@@ -139,8 +222,16 @@ class FeedController(
     @PutMapping("/preferences")
     suspend fun updateFeedPreferences(
         @RequestBody preferences: UpdatePreferencesRequest,
-        @RequestHeader("User-ID") userId: String
+        request: jakarta.servlet.http.HttpServletRequest
     ): ResponseEntity<PreferencesResponse> {
+        val userId = request.getAttribute("userId") as? String
+            ?: return ResponseEntity.status(401).body(
+                PreferencesResponse(
+                    success = false,
+                    message = "User authentication required",
+                    timestamp = Instant.now()
+                )
+            )
         return try {
             // This would typically update user preferences in database
             // For now, just invalidate cache so new preferences take effect
@@ -173,6 +264,26 @@ class FeedController(
             FeedType.EXPLORE -> "Discover new content and creators"
             FeedType.TRENDING -> "Currently trending and popular content"
             FeedType.PERSONALIZED -> "AI-powered personalized recommendations"
+        }
+    }
+
+    private fun createCacheKey(
+        userId: String,
+        feedType: FeedType,
+        limit: Int,
+        cursor: String?,
+        filters: Map<String, Any>
+    ): String {
+        val filterString = filters.entries.sortedBy { it.key }
+            .joinToString("&") { "${it.key}=${it.value}" }
+        return "$userId:${feedType.name}:$limit:${cursor ?: ""}:$filterString"
+    }
+
+    private fun filtersMatch(feed: GeneratedFeed, filters: Map<String, Any>): Boolean {
+        // Check if cached feed was generated with the same filters
+        val feedFilters = feed.metadata.parameters
+        return filters.all { (key, value) ->
+            feedFilters[key] == value
         }
     }
 }

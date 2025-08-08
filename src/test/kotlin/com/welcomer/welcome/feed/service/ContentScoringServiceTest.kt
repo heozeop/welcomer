@@ -2,6 +2,7 @@ package com.welcomer.welcome.feed.service
 
 import com.welcomer.welcome.feed.model.*
 import com.welcomer.welcome.ingestion.model.*
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -171,7 +172,7 @@ class ContentScoringServiceTest {
     }
 
     @Test
-    fun `scoreContent should calculate comprehensive score for candidate`() {
+    fun `scoreContent should calculate comprehensive score for candidate`() = runBlocking {
         val candidate = ContentCandidate(
             content = createTestContent(
                 tags = listOf("technology", "kotlin"),
@@ -223,6 +224,8 @@ class ContentScoringServiceTest {
             textContent = textContent,
             tags = tags,
             languageCode = languageCode,
+            visibility = ContentVisibility.PUBLIC,
+            status = ContentStatus.PUBLISHED,
             createdAt = Instant.now(),
             updatedAt = Instant.now(),
             publishedAt = Instant.now()
