@@ -548,7 +548,7 @@
         "dependencies": [
           4
         ],
-        "status": "in-progress",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -601,7 +601,7 @@
               "9.4"
             ],
             "details": "class ContentDiversityService {\n  constructor(\n    contentDiversityAnalyzer,\n    freshnessService,\n    echoChamberPreventionService,\n    contentBalancingService,\n    feedHistoryRepository\n  ) {\n    this.contentDiversityAnalyzer = contentDiversityAnalyzer;\n    this.freshnessService = freshnessService;\n    this.echoChamberPreventionService = echoChamberPreventionService;\n    this.contentBalancingService = contentBalancingService;\n    this.feedHistoryRepository = feedHistoryRepository;\n  }\n  \n  async diversifyFeed(userId, candidateItems) {\n    // Get user's recent feed history\n    const recentFeedHistory = await this.feedHistoryRepository.getRecent(userId, 100);\n    \n    // Step 1: Calculate diversity scores for candidate items\n    const diversityScores = await this.contentDiversityAnalyzer.calculateDiversityScores(\n      candidateItems, recentFeedHistory\n    );\n    \n    // Step 2: Calculate freshness scores\n    const freshnessScores = await this.freshnessService.calculateFreshnessScores(candidateItems);\n    \n    // Step 3: Apply diversity and freshness boosting to scores\n    let diversifiedItems = candidateItems.map((item, index) => {\n      const diversityBoost = this.calculateDiversityBoost(diversityScores[index]);\n      const freshnessBoost = this.calculateFreshnessBoost(freshnessScores[index]);\n      \n      return {\n        ...item,\n        diversityScore: diversityScores[index],\n        freshnessScore: freshnessScores[index],\n        score: item.score * diversityBoost * freshnessBoost\n      };\n    });\n    \n    // Step 4: Apply echo chamber prevention for at-risk users\n    diversifiedItems = await this.echoChamberPreventionService.applyEchoChamberPrevention(\n      userId, diversifiedItems, recentFeedHistory\n    );\n    \n    // Step 5: Apply content quotas and balancing\n    const balancedFeed = await this.contentBalancingService.applyContentQuotas(\n      userId, diversifiedItems\n    );\n    \n    // Step 6: Final ranking and return\n    return balancedFeed.sort((a, b) => b.score - a.score);\n  }\n  \n  calculateDiversityBoost(diversityScore) {\n    // Higher boost for more diverse content\n    return 1 + (diversityScore * 0.2); // Up to 20% boost for diverse content\n  }\n  \n  calculateFreshnessBoost(freshnessScore) {\n    // Higher boost for fresher content\n    return 1 + (freshnessScore * 0.3); // Up to 30% boost for fresh content\n  }\n  \n  // Method to log diversity metrics for monitoring and improvement\n  async logDiversityMetrics(userId, finalFeed) {\n    // Calculate and log diversity metrics for the final feed\n    // This data can be used for monitoring and improving the system\n  }\n}",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "End-to-end testing with realistic user profiles and content pools. A/B testing comparing feeds with and without diversity enhancements. Measure key metrics like content diversity, user engagement, and time spent. Monitor for any unintended consequences like decreased relevance or engagement."
           }
         ]
@@ -884,7 +884,7 @@
     ],
     "metadata": {
       "created": "2025-08-08T09:50:36.213Z",
-      "updated": "2025-08-08T20:47:17.811Z",
+      "updated": "2025-08-08T20:56:09.083Z",
       "description": "Tasks for master context"
     }
   }
