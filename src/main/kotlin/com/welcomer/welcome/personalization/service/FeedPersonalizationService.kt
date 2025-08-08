@@ -183,7 +183,8 @@ class DefaultFeedPersonalizationService(
     private val userPreferenceService: UserPreferenceService,
     private val userContextService: UserContextService? = null,
     private val userHistoryService: UserHistoryService? = null,
-    private val engagementService: EngagementTrackingService? = null
+    private val engagementService: EngagementTrackingService? = null,
+    private val topicRelevanceService: TopicRelevanceService? = null
 ) : FeedPersonalizationService {
 
     override suspend fun personalizeItems(
@@ -268,6 +269,26 @@ class DefaultFeedPersonalizationService(
     }
 
     override suspend fun calculateTopicRelevance(
+        item: PersonalizableItem,
+        userTopicPreferences: Map<String, Double>
+    ): Double {
+        // Use enhanced topic relevance service if available
+        return if (topicRelevanceService != null) {
+            val result = topicRelevanceService.calculateEnhancedTopicRelevance(
+                itemTopics = item.topics,
+                userPreferences = userTopicPreferences
+            )
+            result.overallRelevance
+        } else {
+            // Fallback to basic implementation
+            calculateBasicTopicRelevance(item, userTopicPreferences)
+        }
+    }
+
+    /**
+     * Basic topic relevance calculation (fallback)
+     */
+    private fun calculateBasicTopicRelevance(
         item: PersonalizableItem,
         userTopicPreferences: Map<String, Double>
     ): Double {

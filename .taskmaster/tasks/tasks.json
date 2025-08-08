@@ -774,7 +774,7 @@
               "12.1"
             ],
             "details": "Implement the calculateTopicRelevance method that compares item topics/tags with user preferred topics. Use a similarity scoring approach that considers both exact matches and related topics. Consider implementing a weighted scoring system where more specific topic matches receive higher scores than general category matches.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Unit test with various combinations of item topics and user preferences. Verify that items with topics matching user preferences receive higher scores."
           },
           {
@@ -884,7 +884,7 @@
     ],
     "metadata": {
       "created": "2025-08-08T09:50:36.213Z",
-      "updated": "2025-08-08T21:05:57.585Z",
+      "updated": "2025-08-08T21:11:20.291Z",
       "description": "Tasks for master context"
     }
   }
