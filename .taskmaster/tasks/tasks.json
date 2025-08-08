@@ -785,7 +785,7 @@
               "12.1"
             ],
             "details": "Implement calculateSourceAffinity method that evaluates user's past interactions with content sources to determine affinity scores. Implement calculateContextualRelevance method that factors in time of day, device type, location, and other contextual factors to determine relevance. Both methods should return normalized scores between 0 and 1.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Unit test each algorithm with various input scenarios. For source affinity, test with different user history patterns. For contextual relevance, test with different time/device/location contexts."
           },
           {
@@ -797,7 +797,7 @@
               "12.3"
             ],
             "details": "Implement the scoring logic in personalizeItems method that combines topicRelevance, sourceAffinity, and contextualRelevance with appropriate weights. Add logic to handle the base score of items and apply the personalization multiplier. Implement sorting logic to rank items by final score. Ensure the algorithm maintains a balance between personalization and diversity.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Unit test the scoring algorithm with various combinations of input factors. Integration test with sample user profiles and feed items to verify expected ranking outcomes."
           },
           {
@@ -884,7 +884,7 @@
     ],
     "metadata": {
       "created": "2025-08-08T09:50:36.213Z",
-      "updated": "2025-08-08T21:11:20.291Z",
+      "updated": "2025-08-08T21:52:58.523Z",
       "description": "Tasks for master context"
     }
   }

@@ -184,7 +184,9 @@ class DefaultFeedPersonalizationService(
     private val userContextService: UserContextService? = null,
     private val userHistoryService: UserHistoryService? = null,
     private val engagementService: EngagementTrackingService? = null,
-    private val topicRelevanceService: TopicRelevanceService? = null
+    private val topicRelevanceService: TopicRelevanceService? = null,
+    private val sourceAffinityService: SourceAffinityService? = null,
+    private val contextualRelevanceService: ContextualRelevanceService? = null
 ) : FeedPersonalizationService {
 
     override suspend fun personalizeItems(
@@ -322,6 +324,26 @@ class DefaultFeedPersonalizationService(
         item: PersonalizableItem,
         userHistory: List<UserActivity>
     ): Double {
+        // Use enhanced source affinity service if available
+        return if (sourceAffinityService != null) {
+            val result = sourceAffinityService.calculateAdvancedSourceAffinity(
+                authorId = item.authorId,
+                userHistory = userHistory
+            )
+            result.overallAffinity
+        } else {
+            // Fallback to basic implementation
+            calculateBasicSourceAffinity(item, userHistory)
+        }
+    }
+
+    /**
+     * Basic source affinity calculation (fallback)
+     */
+    private fun calculateBasicSourceAffinity(
+        item: PersonalizableItem,
+        userHistory: List<UserActivity>
+    ): Double {
         if (userHistory.isEmpty()) {
             return 0.5 // Neutral affinity for new users
         }
@@ -363,6 +385,26 @@ class DefaultFeedPersonalizationService(
     }
 
     override suspend fun calculateContextualRelevance(
+        item: PersonalizableItem,
+        userContext: UserContext
+    ): Double {
+        // Use enhanced contextual relevance service if available
+        return if (contextualRelevanceService != null) {
+            val result = contextualRelevanceService.calculateAdvancedContextualRelevance(
+                item = item,
+                userContext = userContext
+            )
+            result.overallRelevance
+        } else {
+            // Fallback to basic implementation
+            calculateBasicContextualRelevance(item, userContext)
+        }
+    }
+
+    /**
+     * Basic contextual relevance calculation (fallback)
+     */
+    private suspend fun calculateBasicContextualRelevance(
         item: PersonalizableItem,
         userContext: UserContext
     ): Double {
@@ -431,6 +473,7 @@ class DefaultFeedPersonalizationService(
         userHistory: List<UserActivity>,
         config: PersonalizationConfig
     ): PersonalizedItem {
+        // Calculate individual personalization factors using enhanced services
         val topicRelevance = if (userPreferences != null) {
             calculateTopicRelevance(item, userPreferences.topicInterests)
         } else {
@@ -440,21 +483,36 @@ class DefaultFeedPersonalizationService(
         val sourceAffinity = calculateSourceAffinity(item, userHistory)
         val contextualRelevance = calculateContextualRelevance(item, userContext)
         
-        // Calculate recency boost if enabled
+        // Calculate additional factors
         val recencyBoost = if (config.enableRecencyBoost) {
             calculateRecencyBoost(item.createdAt, config.recencyDecayHours)
         } else {
             0.0
         }
         
-        // Combine factors with weights
-        val personalizationMultiplier = (
-            (topicRelevance * config.topicWeight) +
-            (sourceAffinity * config.sourceWeight) +
-            (contextualRelevance * config.contextWeight)
-        ).coerceIn(config.minPersonalizationScore, config.maxPersonalizationScore)
+        // Enhanced scoring algorithm with non-linear combination
+        val basePersonalizationScore = calculateWeightedPersonalizationScore(
+            topicRelevance = topicRelevance,
+            sourceAffinity = sourceAffinity,
+            contextualRelevance = contextualRelevance,
+            config = config
+        )
         
-        // Apply recency boost
+        // Apply quality amplification - higher quality content gets more benefit from personalization
+        val qualityAmplification = calculateQualityAmplification(item.baseScore, basePersonalizationScore)
+        
+        // Apply contextual boost based on enhanced services
+        val contextualBoost = if (config.contextualBoostEnabled) {
+            calculateAdvancedContextualBoost(topicRelevance, sourceAffinity, contextualRelevance)
+        } else {
+            0.0
+        }
+        
+        // Calculate final personalization multiplier
+        val personalizationMultiplier = (basePersonalizationScore * qualityAmplification + contextualBoost)
+            .coerceIn(config.minPersonalizationScore, config.maxPersonalizationScore)
+        
+        // Apply recency boost multiplicatively for more natural effect
         val finalMultiplier = personalizationMultiplier * (1.0 + recencyBoost)
         val finalScore = item.baseScore * finalMultiplier
         
@@ -577,40 +635,80 @@ class DefaultFeedPersonalizationService(
         val explanations = mutableListOf<String>()
         val factors = item.personalizationFactors
         
-        if (factors.topicRelevance > 0.7) {
-            explanations.add("Matches your interest in ${item.item.topics.joinToString(", ")}")
+        // Topic relevance explanations
+        when {
+            factors.topicRelevance > 0.8 -> 
+                explanations.add("Strongly matches your interests in ${item.item.topics.take(2).joinToString(", ")}")
+            factors.topicRelevance > 0.6 -> 
+                explanations.add("Aligns with your interests in ${item.item.topics.take(2).joinToString(", ")}")
+            factors.topicRelevance < 0.3 -> 
+                explanations.add("Exploring new topics outside your usual interests")
         }
         
-        if (factors.sourceAffinity > 0.7) {
-            explanations.add("From ${item.item.authorId}, a source you frequently engage with")
+        // Source affinity explanations
+        when {
+            factors.sourceAffinity > 0.8 -> 
+                explanations.add("From ${item.item.authorId}, a highly trusted source for you")
+            factors.sourceAffinity > 0.6 -> 
+                explanations.add("From ${item.item.authorId}, a source you engage with positively")
+            factors.sourceAffinity < 0.3 -> 
+                explanations.add("From a source you haven't interacted with much")
         }
         
-        if (factors.contextualRelevance > 0.6) {
-            explanations.add("Relevant to your current context and time of day")
+        // Contextual relevance explanations
+        when {
+            factors.contextualRelevance > 0.7 -> 
+                explanations.add("Perfect timing for your current context and device")
+            factors.contextualRelevance > 0.5 -> 
+                explanations.add("Good match for your current time and device")
         }
         
-        if (factors.recencyBoost > 0.1) {
-            explanations.add("Recently published content")
+        // Special scoring explanations
+        if (factors.recencyBoost > 0.15) {
+            explanations.add("Fresh content published recently")
         }
         
-        if (factors.diversityAdjustment < -0.05) {
-            explanations.add("Score adjusted to maintain feed diversity")
+        if (factors.personalizedMultiplier > 2.0) {
+            explanations.add("Highly personalized recommendation - all factors align well")
+        } else if (factors.personalizedMultiplier > 1.5) {
+            explanations.add("Well-tailored to your preferences")
         }
         
-        return explanations
+        // Diversity explanations
+        when {
+            factors.diversityAdjustment > 0.05 -> 
+                explanations.add("Boosted to add variety to your feed")
+            factors.diversityAdjustment < -0.05 -> 
+                explanations.add("Score balanced to maintain feed diversity")
+        }
+        
+        // Quality amplification explanation
+        if (item.item.baseScore > 2.0 && factors.personalizedMultiplier > 1.3) {
+            explanations.add("High-quality content that matches your interests well")
+        }
+        
+        return explanations.ifEmpty { 
+            listOf("Standard personalization applied based on available data") 
+        }
     }
 
     private fun calculatePersonalizationMetrics(
         personalizedItems: List<PersonalizedItem>,
         originalItems: List<PersonalizableItem>
     ): PersonalizationMetrics {
-        val avgPersonalizationScore = personalizedItems.map { 
-            it.personalizationFactors.personalizedMultiplier 
-        }.average()
+        if (personalizedItems.isEmpty()) {
+            return PersonalizationMetrics(0.0, 0, 0, 0.0, 0.0)
+        }
         
+        // Enhanced personalization scoring metrics
+        val personalizationMultipliers = personalizedItems.map { it.personalizationFactors.personalizedMultiplier }
+        val avgPersonalizationScore = personalizationMultipliers.average()
+        
+        // Content diversity metrics
         val topicCoverage = personalizedItems.flatMap { it.item.topics }.toSet().size
         val sourceDiversity = personalizedItems.map { it.item.authorId }.toSet().size
         
+        // Temporal distribution analysis
         val timestamps = personalizedItems.map { it.item.createdAt }
         val temporalSpread = if (timestamps.isNotEmpty()) {
             val earliest = timestamps.minOrNull()!!
@@ -618,6 +716,7 @@ class DefaultFeedPersonalizationService(
             ChronoUnit.HOURS.between(earliest, latest).toDouble()
         } else 0.0
         
+        // Score improvement calculation with quality factors
         val personalizedAvgScore = personalizedItems.map { it.finalScore }.average()
         val baseAvgScore = originalItems.map { it.baseScore }.average()
         val improvement = if (baseAvgScore > 0) {
@@ -650,6 +749,53 @@ class DefaultFeedPersonalizationService(
             dayOfWeek = now.atZone(java.time.ZoneId.systemDefault()).dayOfWeek.value,
             deviceType = DeviceType.UNKNOWN
         )
+    }
+
+    private fun calculateWeightedPersonalizationScore(
+        topicRelevance: Double,
+        sourceAffinity: Double,
+        contextualRelevance: Double,
+        config: PersonalizationConfig
+    ): Double {
+        // Enhanced weighting with non-linear combination
+        val weightedSum = (topicRelevance * config.topicWeight) +
+                         (sourceAffinity * config.sourceWeight) +
+                         (contextualRelevance * config.contextWeight)
+        
+        // Apply harmonic mean for more balanced scoring when factors vary significantly
+        val harmonicMean = 3.0 / (1.0/maxOf(topicRelevance, 0.01) + 
+                                  1.0/maxOf(sourceAffinity, 0.01) + 
+                                  1.0/maxOf(contextualRelevance, 0.01))
+        
+        // Combine weighted sum with harmonic mean for balanced results
+        return (weightedSum * 0.7 + harmonicMean * 0.3).coerceIn(0.0, 1.0)
+    }
+    
+    private fun calculateQualityAmplification(baseScore: Double, personalizationScore: Double): Double {
+        // Higher quality content benefits more from personalization
+        // Lower quality content gets less amplification even with high personalization
+        val qualityFactor = (baseScore / 3.0).coerceIn(0.3, 1.2) // Normalize assuming max base score of 3
+        val personalizationFactor = (personalizationScore + 0.5) // Ensure minimum benefit
+        
+        return qualityFactor * personalizationFactor
+    }
+    
+    private fun calculateAdvancedContextualBoost(
+        topicRelevance: Double,
+        sourceAffinity: Double,
+        contextualRelevance: Double
+    ): Double {
+        // Give extra boost when all factors are high (user is in their "sweet spot")
+        val allFactorsHigh = topicRelevance > 0.7 && sourceAffinity > 0.7 && contextualRelevance > 0.6
+        val sweetSpotBonus = if (allFactorsHigh) 0.2 else 0.0
+        
+        // Give boost when contextual relevance is very high regardless of other factors
+        val contextualBonus = if (contextualRelevance > 0.8) 0.1 else 0.0
+        
+        // Penalize when source affinity is very low (user dislikes this source)
+        val sourcePenalty = if (sourceAffinity < 0.3) -0.15 else 0.0
+        
+        return sweetSpotBonus + contextualBonus + sourcePenalty
     }
 
     private fun createEmptyResult(config: PersonalizationConfig, processingTime: Long): PersonalizationResult {
