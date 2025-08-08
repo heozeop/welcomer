@@ -755,7 +755,7 @@
           6,
           7
         ],
-        "status": "pending",
+        "status": "in-progress",
         "subtasks": [
           {
             "id": 1,
@@ -763,7 +763,7 @@
             "description": "Create methods to fetch and integrate user preferences, context, and history data from respective services for personalization calculations.",
             "dependencies": [],
             "details": "Implement the initial setup of the FeedPersonalizationService class with dependency injection for required services (preferenceService, contextService, userHistoryService). Create methods to fetch user data and properly handle async operations. Ensure proper error handling for cases where services might be unavailable.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Unit test the integration with mock services. Verify correct data fetching and error handling. Test edge cases like missing user preferences or context."
           },
           {
@@ -884,7 +884,7 @@
     ],
     "metadata": {
       "created": "2025-08-08T09:50:36.213Z",
-      "updated": "2025-08-08T20:56:09.083Z",
+      "updated": "2025-08-08T21:05:57.585Z",
       "description": "Tasks for master context"
     }
   }
