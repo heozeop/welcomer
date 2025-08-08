@@ -42,8 +42,8 @@ interface ContentDiversityAnalyzer {
     suspend fun buildContentDistribution(
         userId: String,
         feedHistory: List<FeedEntry>,
-        timeWindow: TimeWindow
-    ): ContentDistribution
+        timeWindow: com.welcomer.welcome.diversity.model.TimeWindow
+    ): com.welcomer.welcome.diversity.model.ContentDistribution
 }
 
 /**
@@ -71,7 +71,7 @@ class DefaultContentDiversityAnalyzer : ContentDiversityAnalyzer {
         val distribution = buildContentDistribution(
             userId = recentFeedHistory.firstOrNull()?.content?.authorId ?: "",
             feedHistory = recentFeedHistory,
-            timeWindow = TimeWindow(
+            timeWindow = com.welcomer.welcome.diversity.model.TimeWindow(
                 startTime = Instant.now().minus(config.timeWindowDays.toLong(), ChronoUnit.DAYS),
                 endTime = Instant.now(),
                 duration = config.timeWindowDays * 24 * 60 * 60 * 1000L
@@ -177,12 +177,12 @@ class DefaultContentDiversityAnalyzer : ContentDiversityAnalyzer {
     override suspend fun buildContentDistribution(
         userId: String,
         feedHistory: List<FeedEntry>,
-        timeWindow: TimeWindow
-    ): ContentDistribution {
+        timeWindow: com.welcomer.welcome.diversity.model.TimeWindow
+    ): com.welcomer.welcome.diversity.model.ContentDistribution {
         val features = extractContentFeatures(feedHistory.map { it.content })
         val totalItems = features.size
 
-        return ContentDistribution(
+        return com.welcomer.welcome.diversity.model.ContentDistribution(
             userId = userId,
             topicDistribution = calculateDistribution(features.flatMap { it.topics }),
             categoryDistribution = calculateCategoryDistribution(features.flatMap { it.topicCategories }),

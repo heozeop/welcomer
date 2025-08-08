@@ -59,6 +59,11 @@ interface UserPreferenceService {
         implicit: List<UserPreference>,
         config: PreferenceMergingConfig = PreferenceMergingConfig()
     ): UserPreferenceProfile?
+
+    /**
+     * Get user preferences in a format suitable for content balancing
+     */
+    suspend fun getUserPreferences(userId: String): com.welcomer.welcome.diversity.service.UserContentPreferences?
 }
 
 /**
@@ -432,5 +437,31 @@ class DefaultUserPreferenceService(
         } else 0.0
 
         return convertToProfile(userId, limitedPreferences, overallConfidence)
+    }
+
+    override suspend fun getUserPreferences(userId: String): com.welcomer.welcome.diversity.service.UserContentPreferences? {
+        val profile = getPreferences(userId) ?: return null
+        
+        // Convert UserPreferenceProfile to UserContentPreferences
+        val preferredTopics = profile.topicInterests
+        val preferredSources = profile.followedAccounts.associateWith { 0.8 } // Default preference for followed accounts
+        
+        // Extract content balance preferences if available
+        val contentBalancePrefs = profile.algorithmPreferences["contentBalance"]?.let { balancePref ->
+            try {
+                // This would parse a JSON string with balance preferences
+                // For now, returning null to use defaults
+                null
+            } catch (e: Exception) {
+                null
+            }
+        }
+        
+        return com.welcomer.welcome.diversity.service.UserContentPreferences(
+            preferredTopics = preferredTopics,
+            preferredSources = preferredSources,
+            contentBalancePreferences = contentBalancePrefs,
+            qualityThreshold = 0.3
+        )
     }
 }
