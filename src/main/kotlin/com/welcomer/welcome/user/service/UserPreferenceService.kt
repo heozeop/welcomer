@@ -128,19 +128,28 @@ class DefaultUserPreferenceService(
 
     override suspend fun updatePreferences(userId: String, request: PreferenceUpdateRequest): Boolean {
         val updatedPreferences = mutableListOf<UserPreference>()
+        var hasSuccessfulOperations = false
 
         try {
             // Process each preference update
             for (update in request.preferences) {
                 val result = processPreferenceUpdate(userId, update)
                 result?.let { updatedPreferences.add(it) }
+                
+                // DELETE operations don't return a preference but are still successful
+                if (update.operation == PreferenceOperation.DELETE) {
+                    hasSuccessfulOperations = true
+                }
             }
 
-            // Save all updates as a batch
+            // Save all updates as a batch (non-delete operations)
             if (updatedPreferences.isNotEmpty()) {
                 preferenceRepository.saveAll(updatedPreferences)
+                hasSuccessfulOperations = true
+            }
 
-                // Publish event for feed system notification
+            // Publish event if any operations were successful
+            if (hasSuccessfulOperations) {
                 eventPublisher.publishEvent(
                     PreferencesUpdatedEvent(
                         userId = userId,
@@ -148,7 +157,6 @@ class DefaultUserPreferenceService(
                         timestamp = Instant.now()
                     )
                 )
-
                 return true
             }
 

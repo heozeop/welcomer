@@ -82,7 +82,6 @@ private data class CachedItem<T>(
     }
 }
 
-@Service
 class DefaultFeedCacheService : FeedCacheService {
 
     // In-memory caches (in production, use Redis)

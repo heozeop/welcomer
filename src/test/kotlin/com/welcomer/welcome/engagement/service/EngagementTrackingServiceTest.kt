@@ -40,6 +40,7 @@ class EngagementTrackingServiceTest {
         )
         
         whenever(engagementRepository.record(any<EngagementEvent>())).thenReturn("engagement123")
+        whenever(engagementRepository.existsSimilar(any(), any(), any(), any())).thenReturn(false)
 
         // When
         val response = trackingService.trackEngagement(userId, request)
@@ -85,7 +86,7 @@ class EngagementTrackingServiceTest {
             createTestEvent(userId, "content1", EngagementType.VIEW),
             createTestEvent(userId, "content2", EngagementType.LIKE)
         )
-        whenever(engagementRepository.findByUserId(eq(userId), any(), any(), eq(100)))
+        whenever(engagementRepository.findByUserId(eq(userId), isNull(), isNull(), eq(100)))
             .thenReturn(events)
 
         // When

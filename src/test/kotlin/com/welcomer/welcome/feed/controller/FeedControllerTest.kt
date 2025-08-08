@@ -62,7 +62,7 @@ class FeedControllerTest {
     }
 
     @Test
-    fun `getFeed should return cached feed when available`() = runBlocking {
+    fun `getFeed should return cached feed when available`(): Unit = runBlocking {
         val userId = "user123"
         val feedType = FeedType.HOME
         mockRequest.setAttribute("userId", userId)
@@ -94,8 +94,11 @@ class FeedControllerTest {
         whenever(cacheService.getCachedFeed(userId, feedType)).thenReturn(null)
         
         val generatedFeed = createMockGeneratedFeed(userId, feedType)
-        whenever(performanceService.withPerformanceMonitoring<GeneratedFeed>(eq("generate_feed"), any())).thenReturn(generatedFeed)
         whenever(feedGenerationService.generateFeed(any())).thenReturn(generatedFeed)
+        whenever(performanceService.withPerformanceMonitoring<GeneratedFeed>(eq("generate_feed"), any())).doAnswer { invocation ->
+            val block = invocation.getArgument<suspend () -> GeneratedFeed>(1)
+            runBlocking { block() }
+        }
         
         val response = feedController.getFeed(
             feedType = "home",
@@ -114,15 +117,18 @@ class FeedControllerTest {
     }
 
     @Test
-    fun `getFeed should respect limit parameter and cap at 100`() = runBlocking {
+    fun `getFeed should respect limit parameter and cap at 100`(): Unit = runBlocking {
         val userId = "user123"
         mockRequest.setAttribute("userId", userId)
         
         whenever(cacheService.getCachedFeed(any(), any())).thenReturn(null)
         
         val generatedFeed = createMockGeneratedFeed(userId, FeedType.HOME)
-        whenever(performanceService.withPerformanceMonitoring<GeneratedFeed>(any(), any())).thenReturn(generatedFeed)
         whenever(feedGenerationService.generateFeed(any())).thenReturn(generatedFeed)
+        whenever(performanceService.withPerformanceMonitoring<GeneratedFeed>(any(), any())).doAnswer { invocation ->
+            val block = invocation.getArgument<suspend () -> GeneratedFeed>(1)
+            runBlocking { block() }
+        }
         
         val response = feedController.getFeed(
             feedType = "home",
@@ -138,15 +144,18 @@ class FeedControllerTest {
     }
 
     @Test
-    fun `getFeed should include filters in feed request`() = runBlocking {
+    fun `getFeed should include filters in feed request`(): Unit = runBlocking {
         val userId = "user123"
         mockRequest.setAttribute("userId", userId)
         
         whenever(cacheService.getCachedFeed(any(), any())).thenReturn(null)
         
         val generatedFeed = createMockGeneratedFeed(userId, FeedType.HOME)
-        whenever(performanceService.withPerformanceMonitoring<GeneratedFeed>(any(), any())).thenReturn(generatedFeed)
         whenever(feedGenerationService.generateFeed(any())).thenReturn(generatedFeed)
+        whenever(performanceService.withPerformanceMonitoring<GeneratedFeed>(any(), any())).doAnswer { invocation ->
+            val block = invocation.getArgument<suspend () -> GeneratedFeed>(1)
+            runBlocking { block() }
+        }
         
         val response = feedController.getFeed(
             feedType = "home",
@@ -181,13 +190,16 @@ class FeedControllerTest {
     }
 
     @Test
-    fun `getRefresh should generate refresh feed with valid timestamp`() = runBlocking {
+    fun `getRefresh should generate refresh feed with valid timestamp`(): Unit = runBlocking {
         val userId = "user123"
         mockRequest.setAttribute("userId", userId)
         
         val generatedFeed = createMockGeneratedFeed(userId, FeedType.HOME)
-        whenever(performanceService.withPerformanceMonitoring<GeneratedFeed>(eq("refresh_feed"), any())).thenReturn(generatedFeed)
         whenever(feedGenerationService.generateFeed(any())).thenReturn(generatedFeed)
+        whenever(performanceService.withPerformanceMonitoring<GeneratedFeed>(eq("refresh_feed"), any())).doAnswer { invocation ->
+            val block = invocation.getArgument<suspend () -> GeneratedFeed>(1)
+            runBlocking { block() }
+        }
         
         val response = feedController.getRefresh(
             feedType = "home",

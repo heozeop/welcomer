@@ -46,6 +46,12 @@ dependencies {
     // spring 통합
     implementation("net.devh:grpc-spring-boot-starter:3.1.0.RELEASE")
 
+    // Redis for caching
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("io.lettuce:lettuce-core")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+    implementation("org.apache.commons:commons-pool2")
+
     // Content processing dependencies
     implementation("org.jsoup:jsoup:1.18.3")
     implementation("org.apache.tika:tika-core:3.0.0")
