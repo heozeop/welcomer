@@ -62,13 +62,13 @@
         "id": 2,
         "title": "Design Data Models",
         "description": "Define the core data models required for the SNS feed system, including user profiles, content items, engagement metrics, and feed algorithms.",
-        "details": "Create comprehensive data models with the following components:\n1. User model (profile data, preferences, social graph)\n2. Content model (posts, media, metadata)\n3. Engagement model (likes, comments, shares, views)\n4. Algorithm parameters model (weights, personalization factors)\n5. Feed composition model (structure, pagination, caching)\n\nFor each model, define:\n- Database schema (SQL or NoSQL as appropriate)\n- Field definitions with data types\n- Relationships and foreign keys\n- Indexing strategy\n- Data validation rules\n\nConsider using a document database for content and a graph database for social relationships if appropriate.",
+        "details": "Create comprehensive data models with the following components:\n1. User model (profile data, preferences, social graph)\n2. Content model (posts, media, metadata)\n3. Engagement model (likes, comments, shares, views)\n4. Algorithm parameters model (weights, personalization factors)\n5. Feed composition model (structure, pagination, caching)\n\nFor each model, define:\n- Database schema (SQL or NoSQL as appropriate)\n- Field definitions with data types\n- Relationships and foreign keys\n- Indexing strategy\n- Data validation rules\n\nConsider using a document database for content and a graph database for social relationships if appropriate.\n<info added on 2025-08-08T10:19:16.189Z>\nDatabase technology has been changed from PostgreSQL to MySQL 8.0. All SQL schemas in related subtasks have been updated to use MySQL syntax, with the following specific changes:\n- UUID type changed to CHAR(36)\n- JSONB type changed to JSON\n- NOW() function changed to CURRENT_TIMESTAMP\n- All other MySQL-specific syntax adjustments have been made\n\nArchitecture documentation has already been updated to reflect this change.\n</info added on 2025-08-08T10:19:16.189Z>",
         "testStrategy": "Create test data sets that validate the data models. Verify that the models support all required queries with acceptable performance. Test edge cases like very active users or viral content. Review with data engineers to ensure scalability.",
         "priority": "high",
         "dependencies": [
           1
         ],
-        "status": "pending",
+        "status": "in-progress",
         "subtasks": [
           {
             "id": 1,
@@ -812,11 +812,79 @@
             "testStrategy": "Test with simulated user profiles that have strong preferences for specific content. Verify that the resulting feed still contains diverse content types and sources. Test that newer content generally ranks higher than older content with similar relevance scores."
           }
         ]
+      },
+      {
+        "id": 13,
+        "title": "Set Up Docker Compose for Local Development Environment",
+        "description": "Configure a Docker Compose setup that allows developers to spin up the entire application stack with a single command, including all required services and proper configuration.",
+        "details": "Create a comprehensive Docker Compose configuration that includes:\n\n1. Service definitions for all required components:\n   - PostgreSQL database for persistent data storage\n   - MongoDB for document storage\n   - Redis for caching (required by Task 8)\n   - Kafka for event streaming (needed for engagement tracking in Task 7)\n   - Elasticsearch for search functionality\n   - Spring Boot application container\n\n2. Network configuration:\n   - Create a dedicated bridge network for all services\n   - Configure proper service discovery between containers\n   - Set up appropriate port mappings for developer access\n\n3. Volume configuration:\n   - Define named volumes for all data persistence needs\n   - Mount appropriate configuration files\n   - Ensure data survives container restarts\n\n4. Environment configuration:\n   - Create .env file for environment variable management\n   - Define appropriate environment variables for each service\n   - Include configuration for development, testing, and staging environments\n\n5. Health checks:\n   - Implement health check endpoints for each service\n   - Configure dependency ordering with health checks\n   - Add startup grace periods for services that need time to initialize\n\n6. Developer convenience features:\n   - Add docker-compose.override.yml for local customizations\n   - Create helper scripts for common operations\n   - Document common commands and troubleshooting steps\n\nExample docker-compose.yml structure:\n```yaml\nversion: '3.8'\n\nservices:\n  app:\n    build: \n      context: .\n      dockerfile: Dockerfile\n    depends_on:\n      postgres:\n        condition: service_healthy\n      mongodb:\n        condition: service_healthy\n      redis:\n        condition: service_healthy\n      kafka:\n        condition: service_healthy\n      elasticsearch:\n        condition: service_healthy\n    ports:\n      - \"8080:8080\"\n    environment:\n      - SPRING_PROFILES_ACTIVE=dev\n      - DB_URL=jdbc:postgresql://postgres:5432/feedapp\n      - MONGO_URI=mongodb://mongodb:27017/feedapp\n      - REDIS_HOST=redis\n      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092\n      - ELASTICSEARCH_HOST=elasticsearch\n    networks:\n      - feed-network\n    healthcheck:\n      test: [\"CMD\", \"curl\", \"-f\", \"http://localhost:8080/actuator/health\"]\n      interval: 30s\n      timeout: 10s\n      retries: 3\n      start_period: 40s\n\n  postgres:\n    image: postgres:14\n    volumes:\n      - postgres-data:/var/lib/postgresql/data\n      - ./init-scripts/postgres:/docker-entrypoint-initdb.d\n    environment:\n      - POSTGRES_USER=feedapp\n      - POSTGRES_PASSWORD=devpassword\n      - POSTGRES_DB=feedapp\n    ports:\n      - \"5432:5432\"\n    networks:\n      - feed-network\n    healthcheck:\n      test: [\"CMD-SHELL\", \"pg_isready -U feedapp\"]\n      interval: 10s\n      timeout: 5s\n      retries: 5\n\n  # Additional service definitions for MongoDB, Redis, Kafka, Elasticsearch\n  # with similar configuration patterns...\n\nnetworks:\n  feed-network:\n    driver: bridge\n\nvolumes:\n  postgres-data:\n  mongodb-data:\n  elasticsearch-data:\n  kafka-data:\n  zookeeper-data:\n```\n\nInclude a README.md with clear instructions for developers on:\n- Prerequisites installation (Docker, Docker Compose)\n- Starting and stopping the environment\n- Accessing service interfaces and logs\n- Troubleshooting common issues\n- Extending the configuration\n<info added on 2025-08-08T10:19:45.580Z>\n7. Database service update:\n   - Replace PostgreSQL with MySQL 8.0 service:\n   ```yaml\n   mysql:\n     image: mysql:8.0\n     volumes:\n       - mysql-data:/var/lib/mysql\n       - ./init-scripts/mysql:/docker-entrypoint-initdb.d\n     environment:\n       - MYSQL_ROOT_PASSWORD=rootpassword\n       - MYSQL_DATABASE=feedapp\n       - MYSQL_USER=feedapp\n       - MYSQL_PASSWORD=devpassword\n     ports:\n       - \"3306:3306\"\n     networks:\n       - feed-network\n     healthcheck:\n       test: [\"CMD\", \"mysqladmin\", \"ping\", \"-h\", \"localhost\", \"-u\", \"feedapp\", \"-p${MYSQL_PASSWORD}\"]\n       interval: 10s\n       timeout: 5s\n       retries: 5\n   ```\n\n   - Update Spring Boot application environment variables:\n   ```\n   DB_URL=jdbc:mysql://mysql:3306/feedapp\n   ```\n\n   - Update volumes section to replace postgres-data with mysql-data:\n   ```yaml\n   volumes:\n     mysql-data:\n     mongodb-data:\n     elasticsearch-data:\n     kafka-data:\n     zookeeper-data:\n   ```\n\n   - Update .env file to include MySQL variables:\n   ```\n   MYSQL_ROOT_PASSWORD=rootpassword\n   MYSQL_DATABASE=feedapp\n   MYSQL_USER=feedapp\n   MYSQL_PASSWORD=devpassword\n   ```\n</info added on 2025-08-08T10:19:45.580Z>",
+        "testStrategy": "1. Verify basic functionality:\n   - Run `docker-compose up -d` and confirm all services start without errors\n   - Check that all containers are running with `docker-compose ps`\n   - Verify network connectivity between containers\n   - Test access to each service's admin interfaces or endpoints\n\n2. Test data persistence:\n   - Create test data in each database service\n   - Restart containers with `docker-compose restart`\n   - Verify that data persists after restart\n   - Test volume mounting by examining container filesystem\n\n3. Test application integration:\n   - Deploy a test version of the Spring Boot application\n   - Verify it can connect to all required services\n   - Run integration tests against the containerized environment\n   - Check application logs for connection issues\n\n4. Performance testing:\n   - Measure startup time for the complete environment\n   - Test resource usage under typical development workloads\n   - Identify and resolve any bottlenecks\n\n5. Developer experience validation:\n   - Have multiple developers test the setup on different operating systems\n   - Collect feedback on usability and pain points\n   - Verify that the environment matches production closely enough for effective testing\n   - Ensure documentation is clear and comprehensive\n\n6. Failure testing:\n   - Simulate service failures and verify graceful handling\n   - Test restart behavior and dependency management\n   - Verify health check effectiveness\n\n7. CI integration:\n   - Configure the Docker Compose setup to run in CI pipelines\n   - Verify that automated tests can use the containerized environment",
+        "status": "pending",
+        "dependencies": [
+          1
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Base Docker Compose Configuration with Database Services",
+            "description": "Set up the initial docker-compose.yml file with PostgreSQL and MongoDB services, including volume configuration and health checks.",
+            "dependencies": [],
+            "details": "Create a docker-compose.yml file in the project root with the following structure:\n\n1. Define version '3.8'\n2. Configure PostgreSQL service:\n   - Use postgres:14 image\n   - Set up environment variables (POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB)\n   - Configure a named volume for data persistence\n   - Add health check using pg_isready\n   - Map port 5432 to host\n3. Configure MongoDB service:\n   - Use mongo:latest image\n   - Set up environment variables (MONGO_INITDB_ROOT_USERNAME, MONGO_INITDB_ROOT_PASSWORD)\n   - Configure a named volume for data persistence\n   - Add health check\n   - Map port 27017 to host\n4. Define the network configuration:\n   - Create a dedicated bridge network named 'feed-network'\n5. Define volumes section for postgres-data and mongodb-data",
+            "status": "pending",
+            "testStrategy": "Verify both database services start correctly with `docker-compose up -d postgres mongodb`. Check container status with `docker-compose ps`. Verify connectivity by connecting to each database using appropriate client tools. Ensure data persistence by creating test data, stopping containers, and verifying data remains after restart."
+          },
+          {
+            "id": 2,
+            "title": "Add Caching and Messaging Services",
+            "description": "Extend the Docker Compose configuration to include Redis for caching and Kafka with Zookeeper for event streaming.",
+            "dependencies": [
+              "13.1"
+            ],
+            "details": "Extend the docker-compose.yml file to add:\n\n1. Redis service:\n   - Use redis:alpine image\n   - Configure persistence using a named volume\n   - Add health check using redis-cli ping\n   - Map port 6379 to host\n   - Connect to the feed-network\n\n2. Kafka service:\n   - Use confluentinc/cp-kafka:latest image\n   - Configure environment variables for broker settings\n   - Set up dependency on Zookeeper with health check condition\n   - Configure a named volume for data persistence\n   - Map port 9092 to host\n   - Connect to the feed-network\n\n3. Zookeeper service:\n   - Use confluentinc/cp-zookeeper:latest image\n   - Configure environment variables\n   - Configure a named volume for data persistence\n   - Add health check\n   - Connect to the feed-network\n\n4. Update the volumes section to include redis-data, kafka-data, and zookeeper-data",
+            "status": "pending",
+            "testStrategy": "Start the services with `docker-compose up -d redis kafka zookeeper`. Verify Redis connectivity using redis-cli. Test Kafka by creating a test topic and producing/consuming messages. Ensure all services are properly networked by checking container logs for connection errors."
+          },
+          {
+            "id": 3,
+            "title": "Implement Elasticsearch Service and Spring Boot Application Container",
+            "description": "Add Elasticsearch for search functionality and configure the Spring Boot application container with proper dependencies and environment variables.",
+            "dependencies": [
+              "13.1",
+              "13.2"
+            ],
+            "details": "Extend the docker-compose.yml file to add:\n\n1. Elasticsearch service:\n   - Use elasticsearch:7.14.0 image\n   - Configure environment variables (discovery.type, ES_JAVA_OPTS, etc.)\n   - Set up a named volume for data persistence\n   - Add health check using curl to verify cluster health\n   - Map ports 9200 and 9300 to host\n   - Connect to the feed-network\n\n2. Spring Boot application container:\n   - Define build context and Dockerfile location\n   - Configure dependencies on all other services with health check conditions\n   - Set up environment variables for connecting to all services:\n     - SPRING_PROFILES_ACTIVE=dev\n     - DB_URL=jdbc:postgresql://postgres:5432/feedapp\n     - MONGO_URI=mongodb://mongodb:27017/feedapp\n     - REDIS_HOST=redis\n     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092\n     - ELASTICSEARCH_HOST=elasticsearch\n   - Map port 8080 to host\n   - Add health check using curl to /actuator/health endpoint\n   - Connect to the feed-network\n\n3. Update the volumes section to include elasticsearch-data",
+            "status": "pending",
+            "testStrategy": "Start all services with `docker-compose up -d`. Verify Elasticsearch is running by checking cluster health at http://localhost:9200/_cluster/health. Test the Spring Boot application by accessing its health endpoint at http://localhost:8080/actuator/health. Verify the application can connect to all dependent services by checking logs for connection errors."
+          },
+          {
+            "id": 4,
+            "title": "Create Environment Configuration and Override Files",
+            "description": "Set up environment variable management with .env file and create docker-compose.override.yml for local customizations.",
+            "dependencies": [
+              "13.3"
+            ],
+            "details": "1. Create a .env file in the project root with environment variables:\n   - POSTGRES_USER=feedapp\n   - POSTGRES_PASSWORD=devpassword\n   - POSTGRES_DB=feedapp\n   - MONGO_INITDB_ROOT_USERNAME=admin\n   - MONGO_INITDB_ROOT_PASSWORD=devpassword\n   - ELASTIC_VERSION=7.14.0\n   - KAFKA_VERSION=latest\n   - APP_PORT=8080\n   - SPRING_PROFILES_ACTIVE=dev\n\n2. Update docker-compose.yml to use variables from .env file\n\n3. Create docker-compose.override.yml for local development customizations:\n   - Add volume mounts for local code development\n   - Configure debug ports for the application\n   - Set up additional developer-friendly settings\n   - Example override for the app service to mount local code:\n     ```\n     services:\n       app:\n         volumes:\n           - ./:/app\n         environment:\n           - DEBUG=true\n         ports:\n           - \"5005:5005\" # Debug port\n     ```\n\n4. Create additional environment files for different environments:\n   - .env.test for testing environment\n   - .env.staging for staging environment",
+            "status": "pending",
+            "testStrategy": "Test environment variable substitution by modifying values in the .env file and verifying they're correctly applied to containers. Test the override functionality by starting the stack with and without the override file and confirming the differences. Verify different environment configurations work by switching between .env files."
+          },
+          {
+            "id": 5,
+            "title": "Create Helper Scripts and Documentation",
+            "description": "Develop helper scripts for common operations and create comprehensive documentation for developers.",
+            "dependencies": [
+              "13.4"
+            ],
+            "details": "1. Create helper scripts in a 'scripts' directory:\n   - start.sh: Script to start the entire stack with proper environment\n   - stop.sh: Script to stop all containers\n   - logs.sh: Script to view logs from all or specific services\n   - clean.sh: Script to clean up volumes and containers\n   - reset-db.sh: Script to reset databases to initial state\n\n2. Create a comprehensive README.md with:\n   - Project overview and architecture diagram\n   - Prerequisites installation instructions (Docker, Docker Compose)\n   - Step-by-step setup instructions\n   - Commands for starting, stopping, and managing the environment\n   - Instructions for accessing each service (URLs, ports, credentials)\n   - Troubleshooting section for common issues\n   - Guidelines for extending the configuration\n   - Development workflow recommendations\n\n3. Create a TROUBLESHOOTING.md with:\n   - Common error scenarios and their solutions\n   - How to check logs and diagnose issues\n   - Steps to reset various components\n\n4. Add comments in docker-compose.yml files explaining key configurations",
+            "status": "pending",
+            "testStrategy": "Test all helper scripts to ensure they work as expected. Have team members review documentation for clarity and completeness. Verify troubleshooting guide by simulating common error scenarios and following the resolution steps."
+          }
+        ]
       }
     ],
     "metadata": {
       "created": "2025-08-08T09:50:36.213Z",
-      "updated": "2025-08-08T10:06:59.127Z",
+      "updated": "2025-08-08T10:25:09.407Z",
       "description": "Tasks for master context"
     }
   }
