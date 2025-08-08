@@ -65,7 +65,8 @@ class DefaultFeedGenerationService(
     private val scoringService: ContentScoringService,
     private val diversityService: FeedDiversityService,
     private val coldStartService: ColdStartService,
-    private val abTestingService: ABTestingService
+    private val abTestingService: ABTestingService,
+    private val feedIntegrationService: com.welcomer.welcome.user.integration.FeedIntegrationService
 ) : FeedGenerationService {
 
     companion object {
@@ -99,8 +100,8 @@ class DefaultFeedGenerationService(
     override suspend fun generateFeed(request: FeedGenerationRequest): GeneratedFeed {
         val startTime = Instant.now()
         var candidatesEvaluated = 0
-        var scoringTime = 0L
-        var diversityTime = 0L
+        var scoringTime: Long
+        var diversityTime: Long
 
         try {
             // 1. Get user preferences
@@ -123,7 +124,6 @@ class DefaultFeedGenerationService(
                     algorithmConfig.coldStartConfig,
                     request.limit * 3 // Get more candidates to have selection
                 )
-                val coldStartWeights = coldStartService.getColdStartWeights(effectiveWeights, userPreferences, algorithmConfig.coldStartConfig)
                 coldStartCandidates to true
             } else {
                 val regularCandidates = getCandidateContent(request.userId, request.feedType, request.limit * 3)
@@ -258,19 +258,23 @@ class DefaultFeedGenerationService(
     }
 
     override suspend fun getUserPreferences(userId: String): UserPreferences {
-        // This would query user preferences from database
-        // For now, return default preferences
-        return UserPreferences(
-            userId = userId,
-            interests = emptyList(),
-            preferredContentTypes = emptySet(),
-            blockedUsers = emptySet(),
-            blockedTopics = emptySet(),
-            languagePreferences = listOf("en"),
-            engagementHistory = emptyMap(),
-            lastActiveAt = Instant.now(),
-            accountAge = 1 // Default to 1 day old
-        )
+        // Use the feed integration service to get preferences
+        return try {
+            feedIntegrationService.getFeedUserPreferences(userId)
+        } catch (e: Exception) {
+            // Fallback to default preferences if there's an error
+            UserPreferences(
+                userId = userId,
+                interests = emptyList(),
+                preferredContentTypes = emptySet(),
+                blockedUsers = emptySet(),
+                blockedTopics = emptySet(),
+                languagePreferences = listOf("en"),
+                engagementHistory = emptyMap(),
+                lastActiveAt = Instant.now(),
+                accountAge = 1 // Default to 1 day old
+            )
+        }
     }
 
     override suspend fun getDefaultAlgorithmConfig(feedType: FeedType): AlgorithmConfig {
