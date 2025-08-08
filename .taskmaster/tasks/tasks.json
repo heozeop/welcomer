@@ -565,7 +565,7 @@
             "description": "Develop a system that identifies and prioritizes fresh content, ensuring new and timely items are properly represented in feeds. This system will track content age and popularity trends to determine freshness.",
             "dependencies": [],
             "details": "class FreshnessService {\n  constructor(contentRepository, trendingService) {\n    this.contentRepository = contentRepository;\n    this.trendingService = trendingService;\n  }\n  \n  async calculateFreshnessScores(candidateItems) {\n    const freshnessScores = [];\n    const now = new Date();\n    \n    for (const item of candidateItems) {\n      // Base freshness on recency (time decay function)\n      const ageInHours = (now - new Date(item.createdAt)) / (1000 * 60 * 60);\n      let freshnessScore = this.calculateRecencyScore(ageInHours);\n      \n      // Boost freshness for trending or timely content\n      const trendingScore = await this.trendingService.getTrendingScore(item.id);\n      freshnessScore = freshnessScore * (1 + (trendingScore * 0.5));\n      \n      // Consider content seasonality or time-relevance if applicable\n      if (item.timeRelevant) {\n        freshnessScore *= 1.2; // 20% boost for time-relevant content\n      }\n      \n      freshnessScores.push(freshnessScore);\n    }\n    \n    return freshnessScores;\n  }\n  \n  calculateRecencyScore(ageInHours) {\n    // Exponential decay function for recency\n    // Very new content (< 1 hour) gets highest score\n    // Score gradually decreases as content ages\n    return Math.exp(-0.05 * ageInHours);\n  }\n  \n  identifyStaleContent(userFeedHistory, timeThresholdHours = 72) {\n    // Identify content types that have been overexposed in user's feed\n    const now = new Date();\n    const recentHistory = userFeedHistory.filter(item => {\n      const ageInHours = (now - new Date(item.seenAt)) / (1000 * 60 * 60);\n      return ageInHours <= timeThresholdHours;\n    });\n    \n    // Group by content attributes to find overexposed categories\n    // Return list of content types/sources that should be limited\n  }\n}",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test the freshness calculation with content of varying ages. Verify that trending content receives appropriate boosts. Test the stale content identification with simulated user histories. Ensure time-based decay functions work as expected across different time ranges."
           },
           {
@@ -884,7 +884,7 @@
     ],
     "metadata": {
       "created": "2025-08-08T09:50:36.213Z",
-      "updated": "2025-08-08T13:29:46.722Z",
+      "updated": "2025-08-08T13:34:15.685Z",
       "description": "Tasks for master context"
     }
   }
