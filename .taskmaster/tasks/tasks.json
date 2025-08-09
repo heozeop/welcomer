@@ -996,7 +996,7 @@
               "14.4"
             ],
             "details": "Develop api-testing.feature with scenarios that test all personalization API endpoints with various parameters. Include scenarios for pagination, filtering, sorting, and parameter validation. Implement step definitions that make actual API calls and verify response structure, content, and headers.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test API endpoints with valid and invalid parameters to ensure proper functionality and error handling."
           },
           {
@@ -1007,7 +1007,7 @@
               "14.9"
             ],
             "details": "Implement error-handling.feature with scenarios that test system behavior when components fail or return errors. Include scenarios for database timeouts, service unavailability, and corrupt data. Implement step definitions that simulate these failure conditions and verify the system degrades gracefully and recovers appropriately.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify that the system handles errors gracefully, provides appropriate fallback content, and recovers when services become available again."
           },
           {
@@ -1155,7 +1155,7 @@
     ],
     "metadata": {
       "created": "2025-08-08T09:50:36.213Z",
-      "updated": "2025-08-09T04:07:25.790Z",
+      "updated": "2025-08-09T04:27:55.150Z",
       "description": "Tasks for master context"
     }
   }
