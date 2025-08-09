@@ -923,7 +923,7 @@
               "14.2"
             ],
             "details": "Write Gherkin scenarios in a new-user-personalization.feature file that test how the system handles users with minimal history. Include scenarios for first-time users, users with only a few interactions, and users who have just specified initial interests. Implement step definitions that set up the test environment with the appropriate user persona and verify that feed content meets diversity requirements.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Run scenarios against a test environment with controlled data to ensure new users receive appropriately diverse content with minimal personalization."
           },
           {
@@ -935,7 +935,7 @@
               "14.2"
             ],
             "details": "Write Gherkin scenarios in a power-user-personalization.feature file that test how the system personalizes content for users with extensive history. Include scenarios for users with strong topic preferences, consistent engagement patterns, and frequent platform usage. Implement step definitions that verify content relevance and personalization depth while maintaining minimum diversity requirements.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify that power users receive highly personalized content that matches their established preferences while still maintaining some content diversity."
           },
           {
@@ -947,7 +947,7 @@
               "14.2"
             ],
             "details": "Implement contextual-personalization.feature with scenarios that test time-based content delivery (morning vs. evening content) and location-based personalization. Create mock time and location services that can be controlled in tests. Implement step definitions that verify content is appropriately contextualized based on these factors.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Test with various time and location combinations to ensure content is appropriately contextualized and relevant to the user's current situation."
           },
           {
@@ -1155,7 +1155,7 @@
     ],
     "metadata": {
       "created": "2025-08-08T09:50:36.213Z",
-      "updated": "2025-08-08T23:58:41.175Z",
+      "updated": "2025-08-09T03:38:09.765Z",
       "description": "Tasks for master context"
     }
   }

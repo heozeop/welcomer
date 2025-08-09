@@ -50,8 +50,23 @@ object EnhancedContentFixtures {
     fun generateComprehensiveTestContent(): List<PersonalizableItem> {
         val content = mutableListOf<PersonalizableItem>()
 
-        // Add existing curated content
-        content.addAll(ContentRepositoryFixtures.getAllTestContent())
+        // Add existing curated content with enhanced metadata
+        val curatedContent = ContentRepositoryFixtures.getAllTestContent().map { item ->
+            // Enhance existing content with proper metadata for BDD testing
+            val enhancedMetadata = generateMetadata(
+                topic = item.topics.firstOrNull() ?: "general",
+                contentType = item.content.contentType,
+                isFollowed = item.authorId in followedAuthors
+            ).toMutableMap()
+            
+            // Merge with existing metadata, keeping existing values if present
+            item.metadata.forEach { (key, value) ->
+                enhancedMetadata[key] = value
+            }
+            
+            item.copy(metadata = enhancedMetadata)
+        }
+        content.addAll(curatedContent)
 
         // Generate additional diverse content to reach 100+ items
         val baseTime = Instant.now()
@@ -279,11 +294,13 @@ object EnhancedContentFixtures {
     private fun generateMetadata(topic: String, contentType: ContentType, isFollowed: Boolean): Map<String, Any> {
         val metadata = mutableMapOf<String, Any>()
         
-        // Engagement metrics
-        metadata["view_count"] = Random.nextInt(100, 10000)
-        metadata["like_count"] = Random.nextInt(10, 1000)
-        metadata["share_count"] = Random.nextInt(1, 100)
-        metadata["comment_count"] = Random.nextInt(0, 200)
+        // Engagement metrics - ensure logical relationships
+        val viewCount = Random.nextInt(100, 10000)
+        val likeCount = Random.nextInt(10, minOf(1000, viewCount)) // Like count should never exceed view count
+        metadata["view_count"] = viewCount
+        metadata["like_count"] = likeCount
+        metadata["share_count"] = Random.nextInt(1, minOf(100, likeCount)) // Share count typically lower than likes
+        metadata["comment_count"] = Random.nextInt(0, minOf(200, likeCount))
         
         // Content characteristics
         metadata["content_length"] = when (contentType) {
@@ -294,7 +311,7 @@ object EnhancedContentFixtures {
         
         // Trending and quality scores
         metadata["trending_score"] = Random.nextDouble(0.0, 1.0)
-        metadata["quality_score"] = Random.nextDouble(0.6, 1.0)
+        metadata["quality_score"] = Random.nextDouble(0.7, 1.0)
         
         // Author relationship
         metadata["is_followed_author"] = isFollowed
