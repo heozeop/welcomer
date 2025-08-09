@@ -67,6 +67,14 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
     testImplementation("io.mockk:mockk:1.13.12")
     testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    
+    // Cucumber BDD testing dependencies
+    testImplementation("io.cucumber:cucumber-java:7.20.1")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.20.1")
+    testImplementation("io.cucumber:cucumber-spring:7.20.1")
+    testImplementation("org.junit.platform:junit-platform-suite-api:1.11.3")
+    testImplementation("org.junit.platform:junit-platform-suite-engine:1.11.3")
+    
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

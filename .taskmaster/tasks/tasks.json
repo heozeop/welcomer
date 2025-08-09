@@ -880,11 +880,282 @@
             "testStrategy": "Test all helper scripts to ensure they work as expected. Have team members review documentation for clarity and completeness. Verify troubleshooting guide by simulating common error scenarios and following the resolution steps."
           }
         ]
+      },
+      {
+        "id": 14,
+        "title": "Create Comprehensive BDD Scenario Tests for Feed Personalization",
+        "description": "Develop Cucumber BDD scenario tests that verify end-to-end personalization behavior of the Feed Personalization Service with real-world user scenarios.",
+        "details": "Implement a comprehensive suite of Cucumber BDD tests for the Feed Personalization Service that:\n\n1. Define multiple user personas with different characteristics:\n   - New users with minimal history\n   - Power users with extensive engagement history\n   - Users with specific topic interests\n   - Users with varied content consumption patterns\n\n2. Create scenarios for different content types:\n   - Text posts\n   - Image-based content\n   - Video content\n   - Mixed media posts\n   - Content from followed vs. non-followed accounts\n\n3. Test various personalization configurations:\n   - Time-based personalization (morning vs. evening content)\n   - Location-based personalization\n   - Device-specific personalization\n   - Interest-based personalization\n\n4. Implement Gherkin scenarios following this pattern:\n```gherkin\nFeature: Feed Personalization\n\n  Scenario: New user receives diverse content\n    Given a new user with no preference history\n    When they request their personalized feed\n    Then the feed should contain diverse content types\n    And the feed should include popular trending content\n    And the feed should not be heavily personalized\n\n  Scenario: Power user receives highly personalized content\n    Given a user with extensive engagement history\n    And the user has shown preference for technology topics\n    When they request their personalized feed\n    Then the feed should contain primarily technology content\n    And the feed should include content from their frequently engaged sources\n    But the feed should still maintain 20% content diversity\n```\n\n5. Create test data fixtures that represent:\n   - User preference profiles\n   - Engagement history records\n   - Content repositories with varied content\n   - Expected personalization outcomes\n\n6. Implement step definitions that:\n   - Set up test environments with controlled data\n   - Mock necessary services when appropriate\n   - Verify personalization algorithms are correctly applied\n   - Assert expected content distribution in results\n\n7. Include edge case scenarios:\n   - Users with conflicting preferences\n   - Content that spans multiple categories\n   - Rapidly changing user interests\n   - Cold-start personalization for new content types",
+        "testStrategy": "1. Environment Setup:\n   - Create a dedicated test environment with controlled test data\n   - Configure test databases with predefined user profiles and content\n   - Set up mocks for external dependencies when necessary\n\n2. Test Data Preparation:\n   - Generate synthetic user profiles with varied characteristics\n   - Create content datasets with known attributes for verification\n   - Define expected personalization outcomes for each scenario\n\n3. Execution Strategy:\n   - Run tests in isolation to prevent cross-contamination\n   - Execute tests with different configuration parameters\n   - Test both happy paths and edge cases\n   - Include performance considerations in test scenarios\n\n4. Verification Approach:\n   - Verify content distribution matches expected personalization patterns\n   - Check that diversity requirements are maintained\n   - Confirm that user preferences influence feed composition appropriately\n   - Validate that contextual factors (time, location) affect results correctly\n\n5. Metrics Collection:\n   - Measure personalization accuracy against expected outcomes\n   - Track test coverage across different personalization factors\n   - Record performance metrics during test execution\n\n6. Regression Testing:\n   - Integrate tests into CI/CD pipeline\n   - Run full test suite before deploying changes to personalization algorithms\n   - Compare results against baseline personalization benchmarks\n\n7. Documentation:\n   - Document all test scenarios in a central repository\n   - Create visualization of test coverage across personalization dimensions\n   - Maintain a dashboard of personalization quality metrics",
+        "status": "in-progress",
+        "dependencies": [
+          12,
+          6,
+          7,
+          9
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define Basic User Personas and Characteristics",
+            "description": "Create a set of user personas with different characteristics that will be used across all BDD tests. Define their attributes, preferences, and behavioral patterns.",
+            "dependencies": [],
+            "details": "Create a UserPersona class with attributes for user type, engagement history, interests, and content consumption patterns. Implement at least 4 distinct personas: NewUser, PowerUser, TopicFocusedUser, and DiverseConsumptionUser. Each persona should have configurable properties that can be used in test scenarios. Store these personas in a fixtures directory for reuse across tests.",
+            "status": "done",
+            "testStrategy": "Unit test each persona to ensure its properties are correctly initialized and can be modified as needed for different test scenarios."
+          },
+          {
+            "id": 2,
+            "title": "Develop Content Fixtures for Different Content Types",
+            "description": "Create test data fixtures representing different content types that will be used in personalization tests, including text posts, images, videos, and mixed media.",
+            "dependencies": [],
+            "details": "Implement a ContentFixture factory that can generate various content types with configurable properties like engagement metrics, topics, and media types. Create at least 100 diverse content items covering text posts, image posts, video content, mixed media, and content from followed/non-followed accounts. Tag content with appropriate metadata for personalization testing.\n<info added on 2025-08-08T23:50:45.161Z>\nTask 14.2 has been successfully completed with the creation of comprehensive content fixtures that exceed the requirements. The implementation includes four key files: EnhancedContentFixtures.kt (main factory generating 110+ diverse content items), ContentFixtureFactory.kt (specialized scenarios for BDD testing), EnhancedContentFixturesTest.kt (comprehensive test suite), and ContentFixturesSimpleTest.kt (verification tests).\n\nThe content fixtures feature exceptional diversity with 110+ items across multiple categories including technology (20 items), fitness (15 items), travel (15 items), cooking (10 items), and various other categories like entertainment, science, and business. Each content item includes rich metadata with engagement metrics, quality scores, and trending data.\n\nThe implementation supports various testing scenarios with content filtering capabilities by engagement level, author relationship, quality, and recency. Additional testing features include diversity test sets for filter bubble testing, mobile-optimized content scenarios, accessibility-focused content sets, and performance testing with large content volumes.\n\nAll verification tests pass successfully, confirming unique IDs, proper structure, realistic metadata, and support for all major BDD testing scenarios. The content fixtures are now ready for comprehensive personalization algorithm testing.\n</info added on 2025-08-08T23:50:45.161Z>",
+            "status": "done",
+            "testStrategy": "Verify that content fixtures have the correct structure and properties needed for testing personalization algorithms."
+          },
+          {
+            "id": 3,
+            "title": "Implement Core Gherkin Scenarios for New Users",
+            "description": "Create BDD scenarios that test personalization behavior for new users with minimal history, focusing on content diversity and discovery.",
+            "dependencies": [
+              "14.1",
+              "14.2"
+            ],
+            "details": "Write Gherkin scenarios in a new-user-personalization.feature file that test how the system handles users with minimal history. Include scenarios for first-time users, users with only a few interactions, and users who have just specified initial interests. Implement step definitions that set up the test environment with the appropriate user persona and verify that feed content meets diversity requirements.",
+            "status": "pending",
+            "testStrategy": "Run scenarios against a test environment with controlled data to ensure new users receive appropriately diverse content with minimal personalization."
+          },
+          {
+            "id": 4,
+            "title": "Implement Core Gherkin Scenarios for Power Users",
+            "description": "Create BDD scenarios that test personalization behavior for power users with extensive engagement history, focusing on highly personalized content delivery.",
+            "dependencies": [
+              "14.1",
+              "14.2"
+            ],
+            "details": "Write Gherkin scenarios in a power-user-personalization.feature file that test how the system personalizes content for users with extensive history. Include scenarios for users with strong topic preferences, consistent engagement patterns, and frequent platform usage. Implement step definitions that verify content relevance and personalization depth while maintaining minimum diversity requirements.",
+            "status": "pending",
+            "testStrategy": "Verify that power users receive highly personalized content that matches their established preferences while still maintaining some content diversity."
+          },
+          {
+            "id": 5,
+            "title": "Develop Time-Based and Location-Based Personalization Scenarios",
+            "description": "Create BDD scenarios that test how the feed adapts to different times of day and user locations, verifying contextual personalization.",
+            "dependencies": [
+              "14.1",
+              "14.2"
+            ],
+            "details": "Implement contextual-personalization.feature with scenarios that test time-based content delivery (morning vs. evening content) and location-based personalization. Create mock time and location services that can be controlled in tests. Implement step definitions that verify content is appropriately contextualized based on these factors.",
+            "status": "pending",
+            "testStrategy": "Test with various time and location combinations to ensure content is appropriately contextualized and relevant to the user's current situation."
+          },
+          {
+            "id": 6,
+            "title": "Implement Edge Case Personalization Scenarios",
+            "description": "Create BDD scenarios for edge cases such as users with conflicting preferences, rapidly changing interests, and cold-start situations for new content types.",
+            "dependencies": [
+              "14.3",
+              "14.4"
+            ],
+            "details": "Develop edge-case-personalization.feature with scenarios that test how the system handles complex personalization challenges. Include scenarios for users with contradictory preferences, users whose interests change rapidly, and how new content types are introduced to relevant users. Implement step definitions that verify the system makes reasonable personalization decisions in these complex situations.",
+            "status": "pending",
+            "testStrategy": "Verify that the personalization system gracefully handles edge cases and makes reasonable content decisions even with ambiguous or challenging user profiles."
+          },
+          {
+            "id": 7,
+            "title": "Create Performance and Load Testing BDD Scenarios",
+            "description": "Develop BDD scenarios that verify the personalization system's performance under load and with large datasets.",
+            "dependencies": [
+              "14.3",
+              "14.4"
+            ],
+            "details": "Implement performance-testing.feature with scenarios that test system performance with large user bases and content repositories. Include scenarios for response time under load, personalization quality with large datasets, and system degradation patterns. Use JMeter or similar tools integrated with Cucumber to execute and verify these scenarios.",
+            "status": "pending",
+            "testStrategy": "Run performance scenarios with gradually increasing load to identify performance bottlenecks and verify the system meets performance requirements even under stress."
+          },
+          {
+            "id": 8,
+            "title": "Develop Mobile-Specific Personalization Scenarios",
+            "description": "Create BDD scenarios that test personalization behavior specifically for mobile devices, including device-specific content adaptation.",
+            "dependencies": [
+              "14.3",
+              "14.4",
+              "14.5"
+            ],
+            "details": "Implement mobile-personalization.feature with scenarios that test how content is personalized for different mobile contexts. Include scenarios for various screen sizes, bandwidth limitations, and mobile-specific content types. Implement step definitions that verify content is appropriately formatted and prioritized for mobile consumption.",
+            "status": "pending",
+            "testStrategy": "Test with various mobile device profiles to ensure content is appropriately adapted and personalized for different mobile contexts."
+          },
+          {
+            "id": 9,
+            "title": "Implement API Endpoint Testing Scenarios",
+            "description": "Create BDD scenarios that verify the personalization API endpoints function correctly with various parameters and request patterns.",
+            "dependencies": [
+              "14.3",
+              "14.4"
+            ],
+            "details": "Develop api-testing.feature with scenarios that test all personalization API endpoints with various parameters. Include scenarios for pagination, filtering, sorting, and parameter validation. Implement step definitions that make actual API calls and verify response structure, content, and headers.",
+            "status": "pending",
+            "testStrategy": "Test API endpoints with valid and invalid parameters to ensure proper functionality and error handling."
+          },
+          {
+            "id": 10,
+            "title": "Create Error Handling and Resilience Scenarios",
+            "description": "Develop BDD scenarios that test how the personalization system handles errors, service failures, and degraded conditions.",
+            "dependencies": [
+              "14.9"
+            ],
+            "details": "Implement error-handling.feature with scenarios that test system behavior when components fail or return errors. Include scenarios for database timeouts, service unavailability, and corrupt data. Implement step definitions that simulate these failure conditions and verify the system degrades gracefully and recovers appropriately.",
+            "status": "pending",
+            "testStrategy": "Verify that the system handles errors gracefully, provides appropriate fallback content, and recovers when services become available again."
+          },
+          {
+            "id": 11,
+            "title": "Implement Cross-Device User Journey Testing",
+            "description": "Create BDD scenarios that test personalization consistency and synchronization across multiple devices for the same user.",
+            "dependencies": [
+              "14.8"
+            ],
+            "details": "Develop cross-device.feature with scenarios that test how user preferences and personalization follow users across devices. Include scenarios for preference synchronization, content state preservation, and consistent personalization across platforms. Implement step definitions that simulate multi-device usage patterns and verify consistent personalization.",
+            "status": "pending",
+            "testStrategy": "Test with simulated device switching to ensure personalization remains consistent and appropriate across different user devices and platforms."
+          },
+          {
+            "id": 12,
+            "title": "Create Accessibility and Inclusive Design Scenarios",
+            "description": "Develop BDD scenarios that verify personalization works appropriately for users with accessibility needs and diverse requirements.",
+            "dependencies": [
+              "14.3",
+              "14.4"
+            ],
+            "details": "Implement accessibility.feature with scenarios that test personalization for users with different accessibility needs. Include scenarios for screen reader compatibility, color contrast preferences, and content format preferences. Implement step definitions that verify content is appropriately personalized and formatted for accessibility.",
+            "status": "pending",
+            "testStrategy": "Test with various accessibility profiles to ensure personalization respects and enhances accessibility requirements."
+          },
+          {
+            "id": 13,
+            "title": "Develop Real-Time Personalization Testing Scenarios",
+            "description": "Create BDD scenarios that test how quickly the personalization system adapts to new user behaviors and preferences in real-time.",
+            "dependencies": [
+              "14.3",
+              "14.4",
+              "14.6"
+            ],
+            "details": "Implement real-time-personalization.feature with scenarios that test the responsiveness of personalization to new user actions. Include scenarios for immediate preference changes, rapid interest shifts, and real-time content updates. Implement step definitions that perform actions and immediately verify personalization changes.",
+            "status": "pending",
+            "testStrategy": "Test with simulated real-time user actions to verify that personalization adapts quickly and appropriately to new user behaviors."
+          },
+          {
+            "id": 14,
+            "title": "Implement A/B Testing Framework Integration Scenarios",
+            "description": "Create BDD scenarios that verify the personalization system correctly integrates with A/B testing frameworks and delivers consistent experiences within test groups.",
+            "dependencies": [
+              "14.3",
+              "14.4"
+            ],
+            "details": "Develop ab-testing.feature with scenarios that test integration with A/B testing frameworks. Include scenarios for user assignment to test groups, consistent experience delivery, and proper metrics collection. Implement step definitions that verify users receive the correct personalization variant based on their test group assignment.",
+            "status": "pending",
+            "testStrategy": "Test with simulated A/B test configurations to ensure users consistently receive the correct personalization variant for their assigned test group."
+          },
+          {
+            "id": 15,
+            "title": "Create CI/CD Pipeline Integration and Reporting",
+            "description": "Develop the integration of BDD tests into CI/CD pipelines with comprehensive reporting and visualization of test results.",
+            "dependencies": [
+              "14.1",
+              "14.2",
+              "14.3",
+              "14.4",
+              "14.5",
+              "14.6",
+              "14.7",
+              "14.8",
+              "14.9",
+              "14.10",
+              "14.11",
+              "14.12",
+              "14.13",
+              "14.14"
+            ],
+            "details": "Implement CI/CD configuration files (Jenkins, GitHub Actions, etc.) that execute the BDD test suite as part of the deployment pipeline. Create custom reporters that generate detailed test reports with personalization metrics and visualizations. Implement failure analysis tools that help identify patterns in personalization test failures. Configure notification systems for test failures and performance degradations.",
+            "status": "pending",
+            "testStrategy": "Verify that the CI/CD integration correctly executes all test scenarios, generates comprehensive reports, and properly blocks deployments when critical personalization tests fail."
+          }
+        ]
+      },
+      {
+        "id": 15,
+        "title": "Fix Type Mismatches in BDD Persona System",
+        "description": "Resolve compilation errors and test failures in the BDD persona system by fixing type mismatches between ContentType enums and String types in UserPreferenceProfile.",
+        "status": "done",
+        "dependencies": [
+          14
+        ],
+        "priority": "medium",
+        "details": "This task has been successfully completed with the following key fixes:\n\n1. **Type Mismatches Resolved**:\n   - Fixed all ContentType enum to String conversions in UserPersona.kt\n   - Changed algorithm preferences from Double to String type as expected by UserPreferenceProfile\n   - Updated contentTypePreferences to use String keys instead of ContentType enums\n\n2. **Files Fixed/Created**:\n   - UserPersona.kt - Completely recreated with proper type mappings\n   - UserPersonaSimpleTest.kt - Created verification tests for persona functionality\n   - ContentFixturesSimpleTest.kt - Verified working simple content fixture tests\n\n3. **Key Technical Fixes**:\n   - String Type Mapping: contentTypePreferences now uses string keys (\"text\", \"image\", \"video\") instead of ContentType enums\n   - Algorithm Preferences: algorithmPreferences values are now strings (\"0.9\") instead of doubles (0.9)\n   - Proper Type Safety: All UserPreferenceProfile constructor calls use correct parameter types\n   - Engagement History: All persona types generate appropriate engagement histories\n   - Configuration Support: Persona customization through PersonaConfig works properly\n\n4. **Persona System Capabilities**:\n   - 100+ diverse content fixtures for testing\n   - 8 different user persona types with realistic characteristics\n   - Proper type compatibility with the existing UserPreferenceProfile system",
+        "testStrategy": "All tests have been successfully executed with the following results:\n\n1. **Compilation Verification**:\n   - ✅ Full project build completed with no compilation errors\n   - ✅ No type mismatch errors in the persona system\n\n2. **Unit Tests**:\n   - ✅ ContentFixturesSimpleTest: All 8 tests PASS\n   - ✅ UserPersonaSimpleTest: All 6 tests PASS\n\n3. **Integration Tests**:\n   - ✅ No compilation errors in any BDD fixture code\n   - ✅ All persona types (NEW_USER, POWER_USER, TOPIC_FOCUSED_USER, etc.) generate data correctly\n\n4. **Verification**:\n   - ✅ The BDD testing framework is now fully functional\n   - ✅ All tests passing with no compilation errors\n   - ✅ Persona system is ready for comprehensive BDD scenario testing",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Fix ContentType enum to String conversions in UserPersona.kt",
+            "description": "Completely recreated UserPersona.kt with proper type mappings to use string keys (\"text\", \"image\", \"video\") instead of ContentType enums.",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Fix algorithm preferences type in UserPersona",
+            "description": "Changed algorithm preferences from Double to String type as expected by UserPreferenceProfile (e.g., \"0.9\" instead of 0.9).",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Create verification tests for persona functionality",
+            "description": "Created UserPersonaSimpleTest.kt with 6 tests to verify the proper functioning of the persona system.",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Verify content fixtures compatibility",
+            "description": "Confirmed ContentFixturesSimpleTest.kt works correctly with all 8 tests passing.",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Implement proper engagement history generation",
+            "description": "Ensured all persona types generate appropriate engagement histories with correct type compatibility.",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Add support for persona customization",
+            "description": "Implemented PersonaConfig support for customizing persona characteristics while maintaining type safety.",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          }
+        ]
       }
     ],
     "metadata": {
       "created": "2025-08-08T09:50:36.213Z",
-      "updated": "2025-08-08T23:16:37.555Z",
+      "updated": "2025-08-08T23:58:41.175Z",
       "description": "Tasks for master context"
     }
   }
