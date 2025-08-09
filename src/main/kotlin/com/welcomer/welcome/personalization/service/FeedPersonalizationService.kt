@@ -84,7 +84,8 @@ data class PersonalizationConfig(
 data class PersonalizableItem(
     val content: StoredContent,
     val baseScore: Double = 1.0,
-    val metadata: Map<String, Any> = emptyMap()
+    val metadata: Map<String, Any> = emptyMap(),
+    val accessibilityFeatures: AccessibilityFeatures = AccessibilityFeatures()
 ) {
     val id: String get() = content.id
     val authorId: String get() = content.authorId
@@ -182,6 +183,41 @@ data class UserLocation(
     val region: String? = null,
     val city: String? = null,
     val timezone: String? = null
+)
+
+/**
+ * Accessibility features for content items
+ */
+data class AccessibilityFeatures(
+    val hasAltText: Boolean = false,
+    val hasCaptions: Boolean = false,
+    val hasTranscript: Boolean = false,
+    val hasHighContrast: Boolean = false,
+    val hasSimplifiedLanguage: Boolean = false,
+    val hasClearStructure: Boolean = false,
+    val readabilityScore: Double = 5.0,
+    val hasLargeTouchTargets: Boolean = false,
+    val hasAccessibleControls: Boolean = false,
+    val isVoiceNavigationOptimized: Boolean = false,
+    val hasAutoPlay: Boolean = false,
+    val contrastRatio: Double = 4.5,
+    val hasTextSummary: Boolean = false,
+    val hasSimplifiedSummary: Boolean = false,
+    val hasConsistentNavigation: Boolean = false,
+    val hasSimpleLayout: Boolean = false,
+    val hasImportantInfoHighlighting: Boolean = false,
+    val hasSubtitles: Boolean = false,
+    val hasAudioContent: Boolean = false,
+    val hasVisualIndicators: Boolean = false,
+    val hasVisualNotifications: Boolean = false,
+    val hasSoundNotifications: Boolean = false,
+    val hasAudioCues: Boolean = false,
+    val hasInteractiveElements: Boolean = false,
+    val hasSwipeInteractions: Boolean = false,
+    val hasAlternativeNavigation: Boolean = false,
+    val hasTextOverlays: Boolean = false,
+    val hasColorDependentInfo: Boolean = false,
+    val hasAlternativeIndicators: Boolean = false
 )
 
 /**
