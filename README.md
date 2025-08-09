@@ -4,7 +4,7 @@
 - 기술 스택을 최대한 맞춰서 만들어보고, 동작/구성확인, 추후 참조를 할 수 있도록 한다.
 - 기본적인 개념은 NestJS와 동일(NestJS가 따라 만듦)하므로 빠르게 익힌다.
 - 동시에 kotlin-in-actionx을 [함께 본다](https://github.com/CrispyReader/kotlin-in-action).
-- 기한: 3일
+- 기한: 4일
 
 ### 2. welcomer 작업 시작
 - OCI에서 무료로 사용할 수 있는 한계인 instance, mysql까지만 사용해서 간단한 프로젝트를 진행한다.
