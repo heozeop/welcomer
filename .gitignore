@@ -40,7 +40,6 @@ out/
 .kotlin
 
 *.jar
-*.bat
 
 # Logs
 logs
