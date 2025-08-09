@@ -424,7 +424,7 @@ class AccessibilityPersonalizationSteps {
         println("Created general user for inclusive design testing: ${currentUser.userId}")
     }
 
-    @When("I request my personalized feed")
+    @When("I request my accessibility-optimized feed")
     fun requestPersonalizedFeed() {
         accessibilityFeedResponse = simulateAccessibilityAwarePersonalization(currentUserData, contentRepository)
         personalizedFeed = accessibilityFeedResponse!!.items

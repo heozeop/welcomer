@@ -418,7 +418,7 @@ class ContextualPersonalizationSteps {
         assertTrue(true, "Previous access tracked")
     }
 
-    @When("I request my personalized feed")
+    @When("I request my contextually personalized feed")
     fun requestPersonalizedFeed() {
         personalizedFeed = simulateContextualPersonalization(currentUserData, contentRepository)
         assertFalse(personalizedFeed.isEmpty(), "Should receive contextual personalized content")

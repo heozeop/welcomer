@@ -66,7 +66,7 @@ class PerformanceTestingSteps {
     private val cacheHitStats = ConcurrentHashMap<String, AtomicInteger>()
     private val cacheMissStats = ConcurrentHashMap<String, AtomicInteger>()
 
-    @Given("the personalization service is available")
+    @Given("the personalization service is available for performance testing")
     fun givenPersonalizationServiceAvailable() {
         // Verify service availability
         assert(true) { "Personalization service should be available" }
@@ -458,7 +458,7 @@ class PerformanceTestingSteps {
         println("Real-time preference update test completed")
     }
 
-    @When("external API response times are slower than normal")
+    @When("I test with slower external API response times")
     fun whenExternalAPIsAreSlow() {
         performanceResults = performExternalAPITest(currentUsers, availableContent)
         println("External API integration test completed")

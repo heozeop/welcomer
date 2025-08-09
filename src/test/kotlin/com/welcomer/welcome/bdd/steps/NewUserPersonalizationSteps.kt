@@ -202,7 +202,7 @@ class NewUserPersonalizationSteps {
         currentUserData = currentUser.generatePersonaData()
     }
 
-    @When("I request my personalized feed")
+    @When("I request my new user personalized feed")
     fun requestPersonalizedFeed() {
         // Use the content fixtures and current user to get personalized feed
         personalizedFeed = simulatePersonalization(currentUserData, contentRepository)
@@ -210,7 +210,7 @@ class NewUserPersonalizationSteps {
         assertFalse(personalizedFeed.isEmpty(), "Should receive personalized content")
     }
 
-    @When("I request my personalized feed over multiple sessions")
+    @When("I request my new user feed over multiple sessions")
     fun requestFeedMultipleSessions() {
         // Simulate multiple sessions with slight context changes
         val sessions = mutableListOf<List<PersonalizableItem>>()

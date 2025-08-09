@@ -16,16 +16,7 @@ import org.junit.platform.suite.api.Suite
 @Suite
 @IncludeEngines("cucumber")
 @SelectClasspathResource("features/ab-testing.feature")
-@ConfigurationParameter(
-    key = Constants.GLUE_PROPERTY_NAME,
-    value = "com.welcomer.welcome.bdd.steps"
-)
-@ConfigurationParameter(
-    key = Constants.EXECUTION_DRY_RUN_PROPERTY_NAME,
-    value = "false"
-)
-@ConfigurationParameter(
-    key = Constants.PLUGIN_PROPERTY_NAME,
-    value = "pretty, html:build/reports/cucumber/ab-testing.html, json:build/reports/cucumber/ab-testing.json"
-)
+@ConfigurationParameter(key = Constants.GLUE_PROPERTY_NAME, value = "com.welcomer.welcome.bdd,com.welcomer.welcome.bdd.steps")
+@ConfigurationParameter(key = Constants.PLUGIN_PROPERTY_NAME, value = "pretty,html:build/reports/cucumber/ab-testing.html,json:build/reports/cucumber/ab-testing.json")
+@ConfigurationParameter(key = Constants.SNIPPET_TYPE_PROPERTY_NAME, value = "camelcase")
 class ABTestingBddTest

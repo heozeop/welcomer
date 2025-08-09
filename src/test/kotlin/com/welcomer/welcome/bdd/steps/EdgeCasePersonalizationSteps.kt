@@ -415,7 +415,7 @@ class EdgeCasePersonalizationSteps {
             "Should be in interest fatigue context")
     }
 
-    @Given("I am a user interested in {string}")
+    @Given("I am a user with niche interest in {string}")
     fun userInterestedInNicheTopic(nicheTopic: String) {
         currentUser = UserPersona(
             type = PersonaType.TOPIC_FOCUSED_USER,
@@ -558,7 +558,7 @@ class EdgeCasePersonalizationSteps {
             "Should be in social vs personal conflict")
     }
 
-    @Given("I am a user interested in {string}")
+    @Given("I am a user with controversial interest in {string}")
     fun userInterestedInControversialTopics(topic: String) {
         currentUser = UserPersona(
             type = PersonaType.NEW_USER,
@@ -722,7 +722,7 @@ class EdgeCasePersonalizationSteps {
             "Should be in language availability conflict")
     }
 
-    @When("I request my personalized feed")
+    @When("I request my edge case personalized feed") 
     fun requestPersonalizedFeed() {
         personalizedFeed = simulateEdgeCasePersonalization(currentUserData, contentRepository)
         assertFalse(personalizedFeed.isEmpty(), "Should receive personalized feed despite edge cases")

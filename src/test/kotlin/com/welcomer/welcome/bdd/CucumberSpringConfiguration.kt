@@ -10,10 +10,9 @@ import org.springframework.test.context.TestPropertySource
  */
 @CucumberContextConfiguration
 @SpringBootTest(
-    classes = [BddTestConfiguration::class],
+    classes = [MinimalBddConfiguration::class],
     webEnvironment = SpringBootTest.WebEnvironment.NONE
 )
-@ActiveProfiles("bdd-test")
 @TestPropertySource(properties = [
     "spring.datasource.url=jdbc:h2:mem:testdb",
     "spring.datasource.driver-class-name=org.h2.Driver",
@@ -22,6 +21,10 @@ import org.springframework.test.context.TestPropertySource
     "spring.flyway.enabled=false",
     "spring.jpa.hibernate.ddl-auto=create-drop",
     "spring.data.redis.port=16379",
-    "logging.level.org.springframework.web=WARN"
+    "logging.level.org.springframework.web=WARN",
+    "spring.cloud.compatibility-verifier.enabled=false",
+    "spring.cloud.refresh.enabled=false",
+    "spring.cloud.circuitbreaker.resilience4j.enabled=false",
+    "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration"
 ])
 class CucumberSpringConfiguration

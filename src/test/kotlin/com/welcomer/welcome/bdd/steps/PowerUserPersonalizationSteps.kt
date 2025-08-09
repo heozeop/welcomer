@@ -406,7 +406,7 @@ class PowerUserPersonalizationSteps {
         assertTrue(profileAge >= 30, "Should have established preferences over time")
     }
 
-    @When("I request my personalized feed")
+    @When("I request my power user personalized feed")
     fun requestPersonalizedFeed() {
         personalizedFeed = simulatePowerUserPersonalization(currentUserData, contentRepository)
         assertFalse(personalizedFeed.isEmpty(), "Should receive personalized content")
