@@ -984,7 +984,7 @@
               "14.5"
             ],
             "details": "Implement mobile-personalization.feature with scenarios that test how content is personalized for different mobile contexts. Include scenarios for various screen sizes, bandwidth limitations, and mobile-specific content types. Implement step definitions that verify content is appropriately formatted and prioritized for mobile consumption.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test with various mobile device profiles to ensure content is appropriately adapted and personalized for different mobile contexts."
           },
           {
@@ -1018,7 +1018,7 @@
               "14.8"
             ],
             "details": "Develop cross-device.feature with scenarios that test how user preferences and personalization follow users across devices. Include scenarios for preference synchronization, content state preservation, and consistent personalization across platforms. Implement step definitions that simulate multi-device usage patterns and verify consistent personalization.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test with simulated device switching to ensure personalization remains consistent and appropriate across different user devices and platforms."
           },
           {
@@ -1155,7 +1155,7 @@
     ],
     "metadata": {
       "created": "2025-08-08T09:50:36.213Z",
-      "updated": "2025-08-09T10:52:03.507Z",
+      "updated": "2025-08-09T11:05:36.956Z",
       "description": "Tasks for master context"
     }
   }
