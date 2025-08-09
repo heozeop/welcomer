@@ -15,8 +15,7 @@ FLUSH PRIVILEGES;
 -- Set MySQL configuration for better performance in development
 SET GLOBAL innodb_buffer_pool_size = 134217728; -- 128MB
 SET GLOBAL max_connections = 200;
-SET GLOBAL query_cache_type = ON;
-SET GLOBAL query_cache_size = 16777216; -- 16MB
+-- Note: query_cache_type and query_cache_size were removed in MySQL 8.0
 
 -- Enable general log for debugging (optional in development)
 -- SET GLOBAL general_log = ON;

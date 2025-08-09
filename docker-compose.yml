@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # MySQL Database Service
   mysql:
@@ -55,8 +53,7 @@ services:
     container_name: welcomer-redis
     volumes:
       - redis-data:/data
-      - ./config/redis.conf:/usr/local/etc/redis/redis.conf
-    command: redis-server /usr/local/etc/redis/redis.conf
+    command: redis-server --requirepass ${REDIS_PASSWORD}
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
     ports:
@@ -134,7 +131,7 @@ services:
 
   # Elasticsearch Service for search functionality
   elasticsearch:
-    image: elasticsearch:${ELASTIC_VERSION}
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
     container_name: welcomer-elasticsearch
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
@@ -173,58 +170,59 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-      mongodb:
-        condition: service_healthy
       redis:
         condition: service_healthy
-      kafka:
-        condition: service_healthy
-      elasticsearch:
-        condition: service_healthy
     volumes:
-      - ./src:/app/src:ro
-      - ./build.gradle.kts:/app/build.gradle.kts:ro
       - ./logs:/app/logs
+      - ./docker-application.properties:/app/config/application.properties
     environment:
       # Database configuration
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/${MYSQL_DATABASE}
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/${MYSQL_DATABASE}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       - SPRING_DATASOURCE_USERNAME=${MYSQL_USER}
       - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
-      
-      # MongoDB configuration
-      - SPRING_DATA_MONGODB_URI=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/${MONGO_INITDB_DATABASE}?authSource=admin
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
       
       # Redis configuration
-      - SPRING_REDIS_HOST=redis
-      - SPRING_REDIS_PORT=6379
-      - SPRING_REDIS_PASSWORD=${REDIS_PASSWORD}
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_DATA_REDIS_PASSWORD=${REDIS_PASSWORD}
       
-      # Kafka configuration
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      # MongoDB configuration (optional - uncomment if needed)
+      # - SPRING_DATA_MONGODB_URI=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/${MONGO_INITDB_DATABASE}?authSource=admin
       
-      # Elasticsearch configuration
-      - SPRING_ELASTICSEARCH_URIS=http://elasticsearch:9200
-      - SPRING_ELASTICSEARCH_USERNAME=elastic
-      - SPRING_ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
+      # Kafka configuration (optional - uncomment if needed)
+      # - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      
+      # Elasticsearch configuration (optional - uncomment if needed)
+      # - SPRING_ELASTICSEARCH_URIS=http://elasticsearch:9200
+      # - SPRING_ELASTICSEARCH_USERNAME=elastic
+      # - SPRING_ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
       
       # Application configuration
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - SERVER_PORT=${APP_PORT}
-      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,metrics,prometheus
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,metrics
+      
+      # Disable problematic features for startup
+      - SPRING_FLYWAY_ENABLED=false
+      - SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED=false
+      - spring.cloud.compatibility-verifier.enabled=false
       
       # Development features
       - SPRING_DEVTOOLS_RESTART_ENABLED=true
-      - SPRING_DEVTOOLS_LIVERELOAD_ENABLED=true
       - LOGGING_LEVEL_COM_WELCOMER=DEBUG
       - LOGGING_LEVEL_ROOT=INFO
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_JPA_SHOW_SQL=true
       - SPRING_JPA_FORMAT_SQL=true
       
-      # JVM options with debug support
-      - JAVA_OPTS=-Xmx1024m -Xms512m -XX:+UseG1GC -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      # JVM options and Spring config location
+      - JAVA_OPTS=-Xmx1024m -Xms512m -XX:+UseG1GC
+      - SPRING_CONFIG_LOCATION=classpath:/application.properties,file:/app/config/application.properties
     ports:
       - "${APP_PORT}:${APP_PORT}"
-      - "${DEBUG_PORT}:${DEBUG_PORT}"
+      - "5005:5005"  # Debug port
+      - "9090:9090"  # gRPC port
     networks:
       - welcomer-network
     healthcheck:
