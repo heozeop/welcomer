@@ -4,8 +4,10 @@ import com.welcomer.welcome.feed.model.*
 import com.welcomer.welcome.ingestion.model.*
 import com.welcomer.welcome.user.model.*
 import com.welcomer.welcome.user.controller.*
+import com.welcomer.welcome.personalization.service.*
 import org.springframework.stereotype.Component
 import java.time.Instant
+import java.time.DayOfWeek
 import java.time.temporal.ChronoUnit
 import kotlin.random.Random
 
@@ -510,12 +512,22 @@ class ApiTestingFixtures {
     fun createTestUser(userId: String): UserPersonaData {
         return UserPersonaData(
             userId = userId,
-            personaType = "test_user",
+            description = "Test user for API testing scenarios",
             preferenceProfile = generateUserPreferenceProfile(userId),
-            behaviorHistory = emptyList(),
-            expectedBehavior = TestUserBehavior(
+            engagementHistory = emptyList(),
+            userContext = UserContext(
+                timeOfDay = 14, // 2 PM
+                dayOfWeek = 1, // Monday
+                deviceType = DeviceType.DESKTOP,
+                location = UserLocation(country = "US"),
                 sessionDuration = 30,
-                contentInteractionRate = 0.5,
+                previousActivity = emptyList()
+            ),
+            expectedBehavior = ExpectedPersonalizationBehavior(
+                shouldHaveDiverseContent = true,
+                shouldIncludeTrendingContent = false,
+                shouldBeHeavilyPersonalized = false,
+                expectedTopicDistribution = mapOf("general" to 0.6, "technology" to 0.4),
                 maxPersonalizationMultiplier = 1.2
             )
         )
@@ -564,15 +576,3 @@ data class TestUserBehavior(
     val contentInteractionRate: Double,
     val maxPersonalizationMultiplier: Double
 )
-
-/**
- * User persona data for API testing
- */
-data class UserPersonaData(
-    val userId: String,
-    val personaType: String,
-    val preferenceProfile: UserPreferenceProfile,
-    val behaviorHistory: List<Any>, // Simplified for API testing
-    val expectedBehavior: TestUserBehavior
-)
-

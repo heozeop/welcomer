@@ -288,9 +288,9 @@ class ApiTestingSteps {
     @Then("the response status should be {int}")
     fun thenResponseStatusShouldBe(expectedStatus: Int) {
         assertNotNull(lastResponse) { "No response received" }
-        assertEquals(HttpStatus.valueOf(expectedStatus), lastResponse!!.statusCode) {
+        assertEquals(HttpStatus.valueOf(expectedStatus), lastResponse!!.statusCode,
             "Expected status $expectedStatus but got ${lastResponse!!.statusCode}"
-        }
+        )
         println("Response status verified: ${lastResponse!!.statusCode}")
     }
 
@@ -331,7 +331,7 @@ class ApiTestingSteps {
     @Then("each item in the feed should have required fields")
     fun thenEachItemShouldHaveRequiredFields() {
         assertNotNull(lastResponseBody) { "No response body parsed" }
-        assertTrue(lastResponseBody!!.has("items")) { "Response should contain 'items' field" }
+        assertTrue(lastResponseBody!!.has("items"), "Response should contain 'items' field")
         
         val items = lastResponseBody!!["items"]
         val requiredFields = listOf("id", "authorId", "contentType", "createdAt", "topics")
@@ -353,7 +353,7 @@ class ApiTestingSteps {
         
         // Verify personalization by checking if returned content aligns with user preferences
         val items = lastResponseBody!!["items"]
-        assertTrue(items.size() > 0) { "Feed should contain items" }
+        assertTrue(items.size() > 0, "Feed should contain items")
         
         // Check if items match user's topic interests
         val userTopics = currentUser!!.preferenceProfile.topicInterests.keys
@@ -375,7 +375,7 @@ class ApiTestingSteps {
     @Then("the response body should contain at most {int} items")
     fun thenResponseShouldContainAtMostItems(maxItems: Int) {
         assertNotNull(lastResponseBody) { "No response body parsed" }
-        assertTrue(lastResponseBody!!.has("items")) { "Response should contain 'items' field" }
+        assertTrue(lastResponseBody!!.has("items"), "Response should contain 'items' field")
         
         val items = lastResponseBody!!["items"]
         assertTrue(items.size() <= maxItems,
@@ -424,9 +424,9 @@ class ApiTestingSteps {
             assertTrue(item.has("contentType"),
                 "Each item should have contentType field"
             )
-            assertEquals(expectedContentType, item["contentType"].asText()) {
+            assertEquals(expectedContentType, item["contentType"].asText(),
                 "All items should have content type '$expectedContentType'"
-            }
+            )
         }
         println("Content type filter verified: all items are $expectedContentType")
     }
@@ -457,10 +457,9 @@ class ApiTestingSteps {
             val meta = lastResponseBody!!["meta"]
             // Look for filter information in metadata
             assertTrue(
-                meta.has("appliedFilters") || meta.has("filterCount") || meta.has("contentTypeFilter")
-            ) {
+                meta.has("appliedFilters") || meta.has("filterCount") || meta.has("contentTypeFilter"),
                 "Response metadata should indicate filtering was applied"
-            }
+            )
         }
         println("Content filtering indication verified")
     }
@@ -473,10 +472,9 @@ class ApiTestingSteps {
         if (lastResponseBody!!.has("meta")) {
             val meta = lastResponseBody!!["meta"]
             assertTrue(
-                meta.has("appliedFilters") || meta.has("topicFilter")
-            ) {
+                meta.has("appliedFilters") || meta.has("topicFilter"),
                 "Response metadata should indicate topic filtering was applied"
-            }
+            )
         }
         println("Topic filtering indication verified")
     }
@@ -493,7 +491,7 @@ class ApiTestingSteps {
                 if (previousTime != null) {
                     assertTrue(createdAt <= previousTime,
                         "Items should be sorted by latest creation time (newest first)"
-                    }
+                    )
                 }
                 previousTime = createdAt
             }
@@ -511,7 +509,7 @@ class ApiTestingSteps {
                 val appliedFilters = meta["appliedFilters"]
                 assertTrue(appliedFilters.size() > 1,
                     "Multiple filters should be indicated in metadata"
-                }
+                )
             }
         }
         println("Multiple filters indication verified")
@@ -520,12 +518,12 @@ class ApiTestingSteps {
     @Then("the response should contain the next page of results")
     fun thenResponseShouldContainNextPage() {
         assertNotNull(lastResponseBody) { "No response body parsed" }
-        assertTrue(lastResponseBody!!.has("items")) { "Response should contain items" }
+        assertTrue(lastResponseBody!!.has("items"), "Response should contain items" )
         
         val items = lastResponseBody!!["items"]
         assertTrue(items.size() > 0,
             "Next page should contain items"
-        }
+        )
         println("Next page results verified: ${items.size()} items")
     }
 
@@ -537,7 +535,7 @@ class ApiTestingSteps {
         if (pagination.has("hasMore") && pagination["hasMore"].asBoolean()) {
             assertTrue(pagination.has("nextCursor"),
                 "Response should include nextCursor for further pagination"
-            }
+            )
             assertNotNull(pagination["nextCursor"]) {
                 "nextCursor should not be null"
             }
@@ -553,7 +551,7 @@ class ApiTestingSteps {
         val items = lastResponseBody!!["items"]
         assertTrue(items.size() > 0,
             "Current page should contain items"
-        }
+        )
         println("Non-overlapping items verified (implementation note: full tracking needed)")
     }
 
@@ -565,10 +563,9 @@ class ApiTestingSteps {
         if (lastResponseBody!!.has("meta")) {
             val meta = lastResponseBody!!["meta"]
             assertTrue(
-                meta.has("fromCache") && !meta["fromCache"].asBoolean()
-            ) {
+                meta.has("fromCache") && !meta["fromCache"].asBoolean(),
                 "Response should indicate data is fresh (not from cache)"
-            }
+            )
         }
         println("Fresh feed data verified")
     }
@@ -581,10 +578,9 @@ class ApiTestingSteps {
             val meta = lastResponseBody!!["meta"]
             assertTrue(
                 (meta.has("fromCache") && !meta["fromCache"].asBoolean()) ||
-                meta.has("refreshForced") && meta["refreshForced"].asBoolean()
-            ) {
+                meta.has("refreshForced") && meta["refreshForced"].asBoolean(),
                 "Response metadata should indicate cache was bypassed"
-            }
+            )
         }
         println("Cache bypass indication verified")
     }
@@ -597,7 +593,7 @@ class ApiTestingSteps {
             val meta = lastResponseBody!!["meta"]
             assertTrue(meta.has("generatedAt") || meta.has("timestamp"),
                 "Response should include generation timestamp"
-            }
+            )
         }
         println("Updated timestamps verified")
     }
@@ -607,14 +603,14 @@ class ApiTestingSteps {
         // This applies to the last batch of concurrent requests
         assertTrue(concurrentRequests.isNotEmpty() || lastResponse != null,
             "Should have responses to verify"
-        }
+        )
         
         if (concurrentRequests.isNotEmpty()) {
             concurrentRequests.forEach { future ->
                 val response = future.get()
-                assertEquals(HttpStatus.valueOf(expectedStatus), response.statusCode) {
+                assertEquals(HttpStatus.valueOf(expectedStatus), response.statusCode,
                     "All responses should have status $expectedStatus"
-                }
+                )
             }
         } else {
             assertEquals(HttpStatus.valueOf(expectedStatus), lastResponse!!.statusCode)
@@ -629,7 +625,7 @@ class ApiTestingSteps {
         assertNotNull(lastResponseBody) { "No response body parsed" }
         assertTrue(lastResponseBody!!.has("items"),
             "Each feed should contain items array"
-        }
+        )
         println("Feed type content appropriateness verified (basic)")
     }
 
@@ -659,13 +655,13 @@ class ApiTestingSteps {
         assertNotNull(lastResponseBody) { "No response body parsed" }
         assertTrue(lastResponseBody!!.has("feedTypes") || lastResponseBody!!.isArray,
             "Response should contain feed types list"
-        }
+        )
         
         val feedTypes = if (lastResponseBody!!.isArray) lastResponseBody else lastResponseBody!!["feedTypes"]
-        assertTrue(feedTypes.size() > 0,
+        assertTrue(feedTypes?.size() ?: 0 > 0,
             "Feed types list should not be empty"
-        }
-        println("Feed types list verified: ${feedTypes.size()} types")
+        )
+        println("Feed types list verified: ${feedTypes?.size() ?: 0} types")
     }
 
     @Then("each feed type should have a name, display name, and description")
@@ -674,11 +670,11 @@ class ApiTestingSteps {
         val feedTypes = if (lastResponseBody!!.isArray) lastResponseBody else lastResponseBody!!["feedTypes"]
         
         val requiredFields = listOf("type", "displayName", "description")
-        feedTypes.forEach { feedType ->
+        feedTypes?.forEach { feedType ->
             requiredFields.forEach { field ->
                 assertTrue(feedType.has(field),
                     "Each feed type should have field '$field'"
-                }
+                )
             }
         }
         println("Feed type required fields verified")
@@ -690,12 +686,12 @@ class ApiTestingSteps {
         val feedTypes = if (lastResponseBody!!.isArray) lastResponseBody else lastResponseBody!!["feedTypes"]
         
         val expectedTypes = setOf("home", "following", "explore", "trending", "personalized")
-        val actualTypes = feedTypes.map { it["type"].asText().lowercase() }.toSet()
+        val actualTypes = feedTypes?.map { it["type"].asText().lowercase() }?.toSet() ?: emptySet()
         
         expectedTypes.forEach { expectedType ->
             assertTrue(expectedType in actualTypes,
                 "Feed types should include '$expectedType'"
-            }
+            )
         }
         println("All expected feed types verified")
     }
@@ -710,7 +706,7 @@ class ApiTestingSteps {
         items.forEach { item ->
             assertTrue(item.has("createdAt"),
                 "Each item should have createdAt timestamp"
-            }
+            )
             // Additional verification would check against the since parameter
         }
         println("Content timestamp filtering verified")
@@ -724,7 +720,7 @@ class ApiTestingSteps {
         items.forEach { item ->
             assertTrue(item.has("createdAt"),
                 "Each item should have createdAt timestamp"
-            }
+            )
             // Parse and verify timestamp is after the since parameter
             val createdAt = Instant.parse(item["createdAt"].asText())
             assertNotNull(createdAt) {
@@ -739,10 +735,10 @@ class ApiTestingSteps {
         assertNotNull(lastResponseBody) { "No response body parsed" }
         assertTrue(lastResponseBody!!.has("success"),
             "Response should indicate success status"
-        }
+        )
         assertTrue(lastResponseBody!!["success"].asBoolean(),
             "Cache invalidation should be successful"
-        }
+        )
         println("Successful cache invalidation verified")
     }
 
@@ -751,7 +747,7 @@ class ApiTestingSteps {
         assertNotNull(lastResponseBody) { "No response body parsed" }
         assertTrue(lastResponseBody!!.has("message"),
             "Response should include a message field"
-        }
+        )
         assertNotNull(lastResponseBody!!["message"]) {
             "Message should not be null"
         }
@@ -772,12 +768,12 @@ class ApiTestingSteps {
         assertNotNull(lastResponseBody) { "No response body parsed" }
         assertTrue(lastResponseBody!!.has("error") || lastResponseBody!!.has("message"),
             "Response should contain error information"
-        }
+        )
         
         val errorMessage = (lastResponseBody!!["error"]?.asText() ?: lastResponseBody!!["message"]?.asText() ?: "").lowercase()
         assertTrue("invalid" in errorMessage && ("feed" in errorMessage || "type" in errorMessage),
             "Error message should mention invalid feed type"
-        }
+        )
         println("Invalid feed type error message verified")
     }
 
@@ -792,7 +788,7 @@ class ApiTestingSteps {
         val mentionedTypes = expectedTypes.count { it in responseText }
         assertTrue(mentionedTypes > 0,
             "Error response should mention valid feed types"
-        }
+        )
         println("Valid feed types mentioned in error: $mentionedTypes types")
     }
 
@@ -804,7 +800,7 @@ class ApiTestingSteps {
         val hasErrorField = lastResponseBody!!.has("error") || lastResponseBody!!.has("message")
         assertTrue(hasErrorField,
             "Error response should have error or message field"
-        }
+        )
         println("Proper error structure verified")
     }
 
@@ -826,7 +822,7 @@ class ApiTestingSteps {
         val items = lastResponseBody!!["items"]
         assertTrue(items.size() <= 100,
             "Item count should be capped at maximum (100)"
-        }
+        )
         println("Limit capping verified: ${items.size()} items")
     }
 
@@ -837,7 +833,7 @@ class ApiTestingSteps {
         val errorMessage = (lastResponseBody!!["error"]?.asText() ?: lastResponseBody!!["message"]?.asText() ?: "").lowercase()
         assertTrue("cursor" in errorMessage && "invalid" in errorMessage,
             "Error message should mention invalid cursor"
-        }
+        )
         println("Invalid cursor error message verified")
     }
 
@@ -862,7 +858,7 @@ class ApiTestingSteps {
         val errorMessage = (lastResponseBody!!["error"]?.asText() ?: lastResponseBody!!["message"]?.asText() ?: "").lowercase()
         assertTrue("auth" in errorMessage || "login" in errorMessage || "unauthorized" in errorMessage,
             "Error message should mention authentication issue"
-        }
+        )
         println("Authentication error message verified")
     }
 
@@ -873,7 +869,7 @@ class ApiTestingSteps {
         val errorMessage = (lastResponseBody!!["error"]?.asText() ?: lastResponseBody!!["message"]?.asText() ?: "").lowercase()
         assertTrue("required" in errorMessage || "needed" in errorMessage,
             "Error message should indicate authentication is required"
-        }
+        )
         println("Authentication requirement indication verified")
     }
 
@@ -882,12 +878,12 @@ class ApiTestingSteps {
     fun thenAllResponseTimesShouldBeUnder(maxTime: Int) {
         assertTrue(requestTimes.isNotEmpty(),
             "Should have recorded response times"
-        }
+        )
         
         val maxResponseTime = requestTimes.maxOrNull() ?: 0L
         assertTrue(maxResponseTime < maxTime,
             "All response times should be under ${maxTime}ms, max was ${maxResponseTime}ms"
-        }
+        )
         
         val avgResponseTime = requestTimes.average()
         println("Response time verification passed: max=${maxResponseTime}ms, avg=${avgResponseTime.toInt()}ms")
@@ -897,19 +893,19 @@ class ApiTestingSteps {
     fun thenAllResponsesShouldContainValidFeedData() {
         assertTrue(concurrentRequests.isNotEmpty() || lastResponse != null,
             "Should have responses to verify"
-        }
+        )
         
         if (concurrentRequests.isNotEmpty()) {
             concurrentRequests.forEach { future ->
                 val response = future.get()
                 assertTrue(response.statusCode.is2xxSuccessful,
                     "All responses should be successful"
-                }
+                )
                 
                 val body = objectMapper.readTree(response.body)
                 assertTrue(body.has("items"),
                     "All responses should contain items"
-                }
+                )
             }
         }
         println("Valid feed data verification passed for all responses")
@@ -919,7 +915,7 @@ class ApiTestingSteps {
     fun thenNoRequestsShouldFailDueToConcurrency() {
         assertTrue(concurrentRequests.isNotEmpty(),
             "Should have concurrent requests to verify"
-        }
+        )
         
         val failedRequests = concurrentRequests.count { future ->
             try {
@@ -930,9 +926,9 @@ class ApiTestingSteps {
             }
         }
         
-        assertEquals(0, failedRequests) {
+        assertEquals(0, failedRequests,
             "No requests should fail due to concurrency issues"
-        }
+        )
         println("Concurrency failure verification passed: 0 failed requests")
     }
 
@@ -943,7 +939,7 @@ class ApiTestingSteps {
         assertNotNull(lastResponseBody) { "No response body parsed" }
         assertTrue(lastResponseBody!!.has("preferences") || lastResponseBody!!.has("profile"),
             "Response should contain preference data"
-        }
+        )
         println("User preference data verified")
     }
 
@@ -956,7 +952,7 @@ class ApiTestingSteps {
         
         assertTrue(hasTopicInterests,
             "Response should include topic interests"
-        }
+        )
         println("Topic interests verified")
     }
 
@@ -969,7 +965,7 @@ class ApiTestingSteps {
         
         assertTrue(hasContentTypePrefs,
             "Response should include content type preferences"
-        }
+        )
         println("Content type preferences verified")
     }
 
@@ -982,7 +978,7 @@ class ApiTestingSteps {
         
         assertTrue(hasConfidence,
             "Response should include confidence scores"
-        }
+        )
         println("Confidence scores verified")
     }
 
@@ -999,7 +995,7 @@ class ApiTestingSteps {
         // Verify structure appropriate for explicit preferences
         assertTrue(lastResponseBody!!.has("preferences") || lastResponseBody!!.has("profile"),
             "Response should contain preference structure"
-        }
+        )
         println("Explicit preferences only verification passed")
     }
 
@@ -1014,7 +1010,7 @@ class ApiTestingSteps {
         
         assertTrue(!hasImplicitIndicators,
             "Response should not contain implicit or derived preference indicators"
-        }
+        )
         println("No implicit preferences verification passed")
     }
 
@@ -1029,7 +1025,7 @@ class ApiTestingSteps {
         // Error message shouldn't contain actual preference data
         assertTrue(!hasSensitiveInfo || lastResponse!!.statusCode.is4xxClientError,
             "Error response should not reveal preference data"
-        }
+        )
         println("No sensitive data leakage verification passed")
     }
 

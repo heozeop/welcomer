@@ -3,8 +3,10 @@ package com.welcomer.welcome.bdd.fixtures
 import com.welcomer.welcome.feed.model.*
 import com.welcomer.welcome.ingestion.model.*
 import com.welcomer.welcome.user.model.*
+import com.welcomer.welcome.personalization.service.*
 import org.springframework.stereotype.Component
 import java.time.Instant
+import java.time.DayOfWeek
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
@@ -100,7 +102,7 @@ class ErrorHandlingFixtures {
     fun createTestUserForErrorScenarios(userId: String): UserPersonaData {
         return UserPersonaData(
             userId = userId,
-            personaType = "error_test_user",
+            description = "Error test user for testing error handling scenarios",
             preferenceProfile = UserPreferenceProfile(
                 userId = userId,
                 topicInterests = mapOf(
@@ -121,10 +123,20 @@ class ErrorHandlingFixtures {
                 lastUpdated = Instant.now(),
                 confidence = 0.7
             ),
-            behaviorHistory = emptyList(),
-            expectedBehavior = TestUserBehavior(
+            engagementHistory = emptyList(),
+            userContext = UserContext(
+                timeOfDay = 14, // 2 PM
+                dayOfWeek = 2, // Tuesday
+                deviceType = DeviceType.DESKTOP,
+                location = UserLocation(country = "US"),
                 sessionDuration = 15,
-                contentInteractionRate = 0.4,
+                previousActivity = emptyList()
+            ),
+            expectedBehavior = ExpectedPersonalizationBehavior(
+                shouldHaveDiverseContent = true,
+                shouldIncludeTrendingContent = false,
+                shouldBeHeavilyPersonalized = false,
+                expectedTopicDistribution = mapOf("general" to 0.6, "technology" to 0.4),
                 maxPersonalizationMultiplier = 1.1
             )
         )
@@ -134,11 +146,12 @@ class ErrorHandlingFixtures {
      * Create user with established preferences for testing error scenarios
      */
     fun createUserWithEstablishedPreferences(): UserPersonaData {
+        val userId = "established_user_${Random.nextInt(1000)}"
         return UserPersonaData(
-            userId = "established_user_${Random.nextInt(1000)}",
-            personaType = "established_user",
+            userId = userId,
+            description = "Established user with well-defined preferences for testing scenarios",
             preferenceProfile = UserPreferenceProfile(
-                userId = "established_user",
+                userId = userId,
                 topicInterests = mapOf(
                     "technology" to 0.9,
                     "programming" to 0.85,
@@ -167,10 +180,20 @@ class ErrorHandlingFixtures {
                 lastUpdated = Instant.now().minus(7, ChronoUnit.DAYS),
                 confidence = 0.95
             ),
-            behaviorHistory = emptyList(),
-            expectedBehavior = TestUserBehavior(
+            engagementHistory = emptyList(),
+            userContext = UserContext(
+                timeOfDay = 9, // 9 AM
+                dayOfWeek = 3, // Wednesday
+                deviceType = DeviceType.DESKTOP,
+                location = UserLocation(country = "US"),
                 sessionDuration = 45,
-                contentInteractionRate = 0.8,
+                previousActivity = emptyList()
+            ),
+            expectedBehavior = ExpectedPersonalizationBehavior(
+                shouldHaveDiverseContent = false,
+                shouldIncludeTrendingContent = true,
+                shouldBeHeavilyPersonalized = true,
+                expectedTopicDistribution = mapOf("technology" to 0.4, "programming" to 0.3, "science" to 0.2, "business" to 0.1),
                 maxPersonalizationMultiplier = 1.5
             )
         )
@@ -182,7 +205,7 @@ class ErrorHandlingFixtures {
     fun createTestUser(userId: String): UserPersonaData {
         return UserPersonaData(
             userId = userId,
-            personaType = "test_user",
+            description = "Test user for general testing scenarios",
             preferenceProfile = UserPreferenceProfile(
                 userId = userId,
                 topicInterests = mapOf("general" to 0.5),
@@ -195,10 +218,20 @@ class ErrorHandlingFixtures {
                 lastUpdated = Instant.now(),
                 confidence = 0.5
             ),
-            behaviorHistory = emptyList(),
-            expectedBehavior = TestUserBehavior(
+            engagementHistory = emptyList(),
+            userContext = UserContext(
+                timeOfDay = 14, // 2 PM
+                dayOfWeek = 1, // Monday
+                deviceType = DeviceType.DESKTOP,
+                location = UserLocation(country = "US"),
                 sessionDuration = 10,
-                contentInteractionRate = 0.3,
+                previousActivity = emptyList()
+            ),
+            expectedBehavior = ExpectedPersonalizationBehavior(
+                shouldHaveDiverseContent = true,
+                shouldIncludeTrendingContent = false,
+                shouldBeHeavilyPersonalized = false,
+                expectedTopicDistribution = mapOf("general" to 0.6, "technology" to 0.4),
                 maxPersonalizationMultiplier = 1.0
             )
         )
