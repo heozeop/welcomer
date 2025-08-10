@@ -1,12 +1,26 @@
 # Welcomer project
 ## 계획
+
+<details>
+<summary>change log</summary>
+
+- 2025-08-08: 프로젝트 시작
+- 2025-08-09: task-master, claude code로 kotlin spring 예제 만들기 시작
+- 2025-08-10: kotlin-in-action, spring 공식 문서 학습
+    - 책이 두꺼운 관계로 별도 일정 분리 후 진행
+</details>
+
 ### 1. task-master, claude code로 실제 동작하는 kotlin spring 예제를 만들어 보기
 - 기술 스택을 최대한 맞춰서 만들어보고, 동작/구성확인, 추후 참조를 할 수 있도록 한다.
 - 기본적인 개념은 NestJS와 동일(NestJS가 따라 만듦)하므로 빠르게 익힌다.
-- 동시에 kotlin-in-actionx을 [함께 본다](https://github.com/CrispyReader/kotlin-in-action).
+- 기한: 2일
+
+### 2. kotlin, spring 학습
+- kotlin-in-action을 [본다](https://github.com/CrispyReader/kotlin-in-action).
+- spring 공식 문서를 본다.
 - 기한: 4일
 
-### 2. welcomer 작업 시작
+### 3. welcomer 작업 시작
 - OCI에서 무료로 사용할 수 있는 한계인 instance, mysql까지만 사용해서 간단한 프로젝트를 진행한다.
 - 방명록 사이트로, 개인 사이트에 방문하는 사람들이 방명록을 남기면, 이를 알림의 형태로 발행하는 식이다.
 - 구체적인 기획은 추후 PRD, 기능 명세서를 작성하여 공유한다.
