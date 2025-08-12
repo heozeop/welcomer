@@ -8,6 +8,9 @@
 - 2025-08-09: task-master, claude code로 kotlin spring 예제 만들기 시작
 - 2025-08-10: kotlin-in-action, spring 공식 문서 학습
     - 책이 두꺼운 관계로 별도 일정 분리 후 진행
+- 2025-08-12: kotlin-in-action의 학습 기한을 늘림
+    - 생각보다 내 학습 루틴이 무너져 있음.
+    - 회복과 함께 하기 때문에 길어 질 것으로 예상
 </details>
 
 ### 1. task-master, claude code로 실제 동작하는 kotlin spring 예제를 만들어 보기
@@ -18,7 +21,7 @@
 ### 2. kotlin, spring 학습
 - kotlin-in-action을 [본다](https://github.com/CrispyReader/kotlin-in-action).
 - spring 공식 문서를 본다.
-- 기한: 4일
+- 기한: 7일
 
 ### 3. welcomer 작업 시작
 - OCI에서 무료로 사용할 수 있는 한계인 instance, mysql까지만 사용해서 간단한 프로젝트를 진행한다.
@@ -27,7 +30,7 @@
 - 기한: 4일
 
 ## 작업 진행 상황
-### 1. 임시 구현 (진행중)
+### 1. 임시 구현
 1. cucumber까지 해서 테스트 만들기
 2. docker compose로 동작 시키기
 3. 각각의 시스템이 어떻게 동작하는지 로그를 따라가며 확인하기
