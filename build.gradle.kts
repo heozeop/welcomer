@@ -22,7 +22,7 @@ repositories {
     mavenCentral()
 }
 
-extra["springCloudVersion"] = "2024.0.2"
+extra["springCloudVersion"] = "2025.0.0"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-jooq")
@@ -41,6 +41,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-core:0.57.0")
     implementation("org.jetbrains.exposed:exposed-dao:0.57.0")
     implementation("org.jetbrains.exposed:exposed-java-time:0.57.0")
+    implementation("org.jetbrains.exposed:exposed-spring-boot-starter:0.57.0")
 
     // Redis for caching
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
