@@ -40,9 +40,14 @@
 - kotest
 - docker compose
 ### 폴더 구조
-[link](./folder-structure.md)
+- [폴더구조](./folder-structure.md)
+- change log
+  - 2025-08-19: 초안 작성
 
-
+### 의사 결정
+- [의사결정](./decisions.md)
+- change log
+  - 2025-08-19: 초안 작성
 
 ## 6. API 명세
 ### 메세지 작성
