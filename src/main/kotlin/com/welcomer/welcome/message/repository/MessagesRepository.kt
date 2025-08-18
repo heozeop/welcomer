@@ -6,9 +6,10 @@ import com.welcomer.welcome.utils.toLocalDateTime
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.springframework.stereotype.Repository
 import java.time.ZoneOffset
 
-
+@Repository
 class MessagesRepository {
     fun save(message: Message):Message {
         val id = transaction {
