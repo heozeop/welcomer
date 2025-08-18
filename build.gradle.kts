@@ -34,6 +34,9 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
 
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
+
+
     // JOOQ dependencies
     implementation("org.jooq:jooq:3.20.0")
 

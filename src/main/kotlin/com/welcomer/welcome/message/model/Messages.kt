@@ -4,7 +4,7 @@ import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.timestamp
 import java.time.LocalDateTime
 
-object Messages: Table() {
+object Messages: Table("messages") {
     val id = uinteger("id").autoIncrement()
     val author = varchar("author", 255)
     val content = text("content")
