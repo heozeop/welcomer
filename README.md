@@ -11,6 +11,9 @@
 - 2025-08-12: kotlin-in-action의 학습 기한을 늘림
     - 생각보다 내 학습 루틴이 무너져 있음.
     - 회복과 함께 하기 때문에 길어 질 것으로 예상
+- 2025-08-19: kotlin-in-action 학습 완료, welcomer 작업 시작
+    - kotlin-in-action을 정리하는 것은 면접 이후
+    - 중간 가족여행으로 일정이 조금 더 소요됨
 </details>
 
 ### 1. task-master, claude code로 실제 동작하는 kotlin spring 예제를 만들어 보기
@@ -21,7 +24,7 @@
 ### 2. kotlin, spring 학습
 - kotlin-in-action을 [본다](https://github.com/CrispyReader/kotlin-in-action).
 - spring 공식 문서를 본다.
-- 기한: 7일
+- 기한: 7일 + 3일(가족여행으로 인해 연장)
 
 ### 3. welcomer 작업 시작
 - OCI에서 무료로 사용할 수 있는 한계인 instance, mysql까지만 사용해서 간단한 프로젝트를 진행한다.
