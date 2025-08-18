@@ -42,14 +42,6 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-dao:0.57.0")
     implementation("org.jetbrains.exposed:exposed-java-time:0.57.0")
 
-    // grpc
-    implementation("io.grpc:grpc-netty-shaded:1.69.0")
-    implementation("io.grpc:grpc-stub:1.69.0")
-    implementation("io.grpc:grpc-kotlin-stub:1.4.1")
-
-    // spring 통합
-    implementation("net.devh:grpc-spring-boot-starter:3.1.0.RELEASE")
-
     // Redis for caching
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("io.lettuce:lettuce-core")
@@ -82,7 +74,6 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     
     // Enhanced reporting dependencies
-    testImplementation("net.masterthought:cucumber-reporting:5.8.2")
     testImplementation("io.qameta.allure:allure-cucumber7-jvm:2.29.0")
     testImplementation("io.qameta.allure:allure-junit5:2.29.0")
     
@@ -104,7 +95,7 @@ kotlin {
 // Enhanced test configuration with reporting
 tasks.withType<Test> {
     useJUnitPlatform()
-    
+
     // Configure system properties for different test types
     when (project.findProperty("testType")) {
         "unit" -> {
@@ -147,25 +138,25 @@ tasks.withType<Test> {
             systemProperty("jvm.args", "-XX:+UseG1GC")
         }
     }
-    
+
     // Common test configuration
     systemProperty("spring.profiles.active", "test")
     systemProperty("logging.level.com.welcomer.welcome", "DEBUG")
-    
+
     // Parallel execution for faster tests
     maxParallelForks = Runtime.getRuntime().availableProcessors().div(2).takeIf { it > 0 } ?: 1
-    
+
     // Enhanced reporting
     reports {
         junitXml.required.set(true)
         html.required.set(true)
     }
-    
+
     // Fail fast on first failure for quick feedback
     if (project.hasProperty("fail-fast")) {
         failFast = true
     }
-    
+
     finalizedBy(tasks.jacocoTestReport)
 }
 
