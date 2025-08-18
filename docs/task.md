@@ -32,13 +32,17 @@
 2. 메세지 작성
 3. 최신순 반영
 
-## 5. 기술 스택
-1. Backend
-    - kotlin spring
-    - mysql
-    - exposed, jooq
-    - kotest
-    - docker compose
+## 5. 기술 스택 & 구조
+### 기술 스택
+- kotlin spring
+- mysql
+- exposed, jooq
+- kotest
+- docker compose
+### 폴더 구조
+[link](./folder-structure.md)
+
+
 
 ## 6. API 명세
 ### 메세지 작성
