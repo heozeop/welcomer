@@ -3,12 +3,9 @@ package com.welcomer.welcome.message.repository
 import com.welcomer.welcome.message.model.Comment
 import com.welcomer.welcome.message.model.Comments
 import com.welcomer.welcome.utils.toLocalDateTime
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -43,10 +40,17 @@ class CommentRepository {
             .mapNotNull { rowToComment(it) }
     }
 
-    suspend fun count(messageId: UInt): Long = transaction {
-        Comments.select(Comments.id, Comments.author, Comments.content, Comments.createdAt, Comments.updatedAt)
-            .where { Comments.messageId eq messageId }
-            .count()
+    suspend fun countMap(messageIds: List<UInt>): Map<UInt, Long> = transaction {
+        Comments.select(Comments.messageId, Comments.id.count())
+            .where { Comments.messageId inList messageIds }
+            .fold(mutableMapOf()) { acc, row ->
+                val messageId = row[Comments.messageId]
+                val count = row[Comments.id.count()]
+                acc[messageId] = count
+
+                acc
+            }
+
     }
 
     suspend fun update(messageId: UInt, commentId: UInt, comment: Comment): Boolean = transaction {

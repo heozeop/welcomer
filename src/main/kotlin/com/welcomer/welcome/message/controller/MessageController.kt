@@ -55,7 +55,6 @@ class MessageController (
         @RequestParam(defaultValue = "0") cursorId: UInt
     ): List<Comment> = runBlocking { commentService.find(id, size, cursorId) }
 
-
     @Operation(summary = "Save a comment for a message")
     @ApiResponse(responseCode = "200", description = "Comment saved successfully")
     @GetMapping("/{id}/comments/count")

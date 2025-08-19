@@ -13,7 +13,10 @@ class CommentService(
     suspend fun find(messageId: UInt, size: Int = 10, cursorId: UInt = 0u) =
         commentRepository.find(messageId, size, cursorId)
 
-    suspend fun count(messageId: UInt) = commentRepository.count(messageId)
+    suspend fun count(messageId: UInt): Long {
+        val list = commentRepository.countMap(listOf(messageId))
+        return list[messageId] ?: 0L
+    }
 
     suspend fun update(messageId: UInt, commentId: UInt, comment: Comment) = commentRepository.update(messageId, commentId, comment)
 
