@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("messages")
 class MessageController (
-    private val messagesService: com.welcomer.welcome.message.service.MessagesService,
+    private val messageService: com.welcomer.welcome.message.service.MessageService,
     private val commentService: com.welcomer.welcome.message.service.CommentService
 ) {
     @Operation(summary = "Save a new message")
     @ApiResponse(responseCode = "200", description = "Message saved successfully")
     @PostMapping("/")
     fun saveMessage(@Valid @RequestBody message: MessageCreateDTO): MessageDTO = runBlocking {
-        val response = messagesService.save(message.toMessage())
+        val response = messageService.save(message.toMessage())
 
         MessageDTO(
             id = response.id,
@@ -45,7 +45,7 @@ class MessageController (
     @ApiResponse(responseCode = "200", description = "Message retrieved successfully")
     @GetMapping("/{id}")
     fun getMessageById(@PathVariable id: UInt): MessageDetailDTO? = runBlocking {
-        val response = messagesService.findByIdForDisplay(id)
+        val response = messageService.findByIdForDisplay(id)
 
         if(response != null) {
             val (message, commentCount, comments) = response
@@ -71,7 +71,7 @@ class MessageController (
         @RequestParam(defaultValue = "10") size: Int,
         @RequestParam(defaultValue = "0") cursorId: UInt
     ): MessageListDTO = runBlocking {
-        val (messages, messageCount, commentCountMap ) = messagesService.findForDisplay(size, cursorId)
+        val (messages, messageCount, commentCountMap ) = messageService.findForDisplay(size, cursorId)
 
         MessageListDTO(
             messages = messages.map {
@@ -92,7 +92,7 @@ class MessageController (
     @Operation(summary = "Get total count of messages")
     @ApiResponse(responseCode = "200", description = "Total count of messages retrieved successfully")
     @GetMapping("/count")
-    fun getMessagesCount(): Long = runBlocking { messagesService.count() }
+    fun getMessagesCount(): Long = runBlocking { messageService.count() }
 
     @Operation(summary = "Get comments for a message")
     @ApiResponse(responseCode = "200", description = "Comments retrieved successfully")
@@ -121,7 +121,7 @@ class MessageController (
             throw IllegalArgumentException("Message ID in path does not match ID in request body")
         }
 
-        messagesService.update(message)
+        messageService.update(message)
     }
 
     @Operation(summary = "Update a comment by ID")
@@ -142,7 +142,7 @@ class MessageController (
     @Operation(summary = "Delete a message by ID")
     @ApiResponse(responseCode = "200", description = "Message deleted successfully")
     @DeleteMapping("/{id}")
-    fun deleteMessage(@PathVariable id: UInt): Boolean = runBlocking { messagesService.delete(id) }
+    fun deleteMessage(@PathVariable id: UInt): Boolean = runBlocking { messageService.delete(id) }
 
     @Operation(summary = "Delete a comment by ID")
     @ApiResponse(responseCode = "200", description = "Comment deleted successfully")

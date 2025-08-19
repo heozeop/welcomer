@@ -10,7 +10,7 @@ import kotlinx.coroutines.coroutineScope
 import org.springframework.stereotype.Service
 
 @Service
-class MessagesService(
+class MessageService(
     private val messagesRepository: MessagesRepository,
     private val commentRepository: CommentRepository
 ) {
