@@ -8,15 +8,15 @@ import org.springframework.stereotype.Service
 class MessagesService(
     private val messagesRepository: MessagesRepository
 ) {
-    fun save(message: Message): Message = messagesRepository.save(message)
+    suspend fun save(message: Message): Message = messagesRepository.save(message)
 
-    fun findById(id: UInt): Message? = messagesRepository.findById(id)
+    suspend fun findById(id: UInt): Message? = messagesRepository.findById(id)
 
-    fun find(size: Int, cursorId: UInt): List<Message> = messagesRepository.find(size, cursorId)
+    suspend fun find(size: Int, cursorId: UInt): List<Message> = messagesRepository.find(size, cursorId)
 
-    fun count(): Long = messagesRepository.count()
+    suspend fun count(): Long = messagesRepository.count()
 
-    fun update(message: Message): Boolean = messagesRepository.update(message)
+    suspend fun update(message: Message): Boolean = messagesRepository.update(message)
 
-    fun delete(id: UInt): Boolean = messagesRepository.delete(id)
+    suspend fun delete(id: UInt): Boolean = messagesRepository.delete(id)
 }

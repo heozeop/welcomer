@@ -4,6 +4,7 @@ import com.welcomer.welcome.message.model.Message
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import jakarta.validation.Valid
+import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 
@@ -15,12 +16,12 @@ class MessageController (
     @Operation(summary = "Save a new message")
     @ApiResponse(responseCode = "200", description = "Message saved successfully")
     @PostMapping("/")
-    fun saveMessage(@Valid @RequestBody message: Message): Message = messagesService.save(message)
+    fun saveMessage(@Valid @RequestBody message: Message): Message = runBlocking { messagesService.save(message) }
 
     @Operation(summary = "Get message by ID")
     @ApiResponse(responseCode = "200", description = "Message retrieved successfully")
     @GetMapping("/{id}")
-    fun getMessageById(@PathVariable id: UInt): Message? = messagesService.findById(id)
+    fun getMessageById(@PathVariable id: UInt): Message? = runBlocking { messagesService.findById(id) }
 
     @Operation(summary = "Get all messages with pagination")
     @ApiResponse(responseCode = "200", description = "Messages retrieved successfully")
@@ -28,12 +29,12 @@ class MessageController (
     fun getMessages(
         @RequestParam(defaultValue = "10") size: Int,
         @RequestParam(defaultValue = "0") cursorId: UInt
-    ): List<Message> = messagesService.find(size, cursorId)
+    ): List<Message> = runBlocking { messagesService.find(size, cursorId) }
 
     @Operation(summary = "Get total count of messages")
     @ApiResponse(responseCode = "200", description = "Total count of messages retrieved successfully")
     @GetMapping("/count")
-    fun getMessagesCount(): Long = messagesService.count()
+    fun getMessagesCount(): Long = runBlocking { messagesService.count() }
 
     @Operation(summary = "update a message by ID")
     @ApiResponse(responseCode = "200", description = "update message successfully")
@@ -41,16 +42,16 @@ class MessageController (
     fun updateMessage(
         @PathVariable id: UInt,
         @Valid @RequestBody message: Message
-    ): Boolean {
+    ): Boolean = runBlocking {
         if (message.id != id) {
             throw IllegalArgumentException("Message ID in path does not match ID in request body")
         }
 
-        return messagesService.update(message)
+        messagesService.update(message)
     }
 
     @Operation(summary = "Delete a message by ID")
     @ApiResponse(responseCode = "200", description = "Message deleted successfully")
     @DeleteMapping("/{id}")
-    fun deleteMessage(@PathVariable id: UInt): Boolean = messagesService.delete(id)
+    fun deleteMessage(@PathVariable id: UInt): Boolean = runBlocking { messagesService.delete(id) }
 }

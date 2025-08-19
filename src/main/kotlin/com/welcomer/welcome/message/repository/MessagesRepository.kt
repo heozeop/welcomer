@@ -12,7 +12,7 @@ import java.time.ZoneOffset
 
 @Repository
 class MessagesRepository {
-    fun save(message: Message):Message {
+    suspend fun save(message: Message):Message {
         val item = transaction {
             Messages.insert {
                 it[author] = message.author
@@ -29,14 +29,14 @@ class MessagesRepository {
         )
     }
 
-    fun findById(id: UInt): Message? = transaction {
+    suspend fun findById(id: UInt): Message? = transaction {
             Messages.select(Messages.id, Messages.author, Messages.content, Messages.createdAt, Messages.updatedAt)
                 .where { Messages.id eq id }
                 .mapNotNull { rowToMessage(it) }
                 .singleOrNull()
         }
 
-    fun find(size: Int, cursorId: UInt): List<Message> = transaction {
+    suspend fun find(size: Int, cursorId: UInt): List<Message> = transaction {
         Messages.selectAll()
             .where { Messages.id greater cursorId }
             .limit(size)
@@ -44,11 +44,11 @@ class MessagesRepository {
             .map { rowToMessage(it) }
     }
 
-    fun count(): Long = transaction {
+    suspend fun count(): Long = transaction {
         Messages.selectAll().count()
     }
 
-    fun update(message: Message): Boolean =
+    suspend fun update(message: Message): Boolean =
         transaction {
             val affectedRows: Int = Messages.update({ Messages.id eq message.id!! }) {
                 it[author] = message.author
@@ -59,7 +59,7 @@ class MessagesRepository {
             affectedRows > 0
         }
 
-    fun delete(id: UInt): Boolean = transaction {
+    suspend fun delete(id: UInt): Boolean = transaction {
         val affectedRows: Int = Messages.deleteWhere { Messages.id eq id }
         affectedRows > 0
     }
