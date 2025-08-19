@@ -24,15 +24,20 @@ class MessageController (
 
     @Operation(summary = "Get all messages with pagination")
     @ApiResponse(responseCode = "200", description = "Messages retrieved successfully")
-    @GetMapping("/messages")
+    @GetMapping("/")
     fun getMessages(
         @RequestParam(defaultValue = "10") size: Int,
         @RequestParam(defaultValue = "0") cursorId: UInt
     ): List<Message> = messagesService.find(size, cursorId)
 
+    @Operation(summary = "Get total count of messages")
+    @ApiResponse(responseCode = "200", description = "Total count of messages retrieved successfully")
+    @GetMapping("/count")
+    fun getMessagesCount(): Long = messagesService.count()
+
     @Operation(summary = "update a message by ID")
     @ApiResponse(responseCode = "200", description = "update message successfully")
-    @PutMapping("/messages/{id}")
+    @PutMapping("/{id}")
     fun updateMessage(
         @PathVariable id: UInt,
         @Valid @RequestBody message: Message
@@ -46,6 +51,6 @@ class MessageController (
 
     @Operation(summary = "Delete a message by ID")
     @ApiResponse(responseCode = "200", description = "Message deleted successfully")
-    @DeleteMapping("/messages/{id}")
+    @DeleteMapping("/{id}")
     fun deleteMessage(@PathVariable id: UInt): Boolean = messagesService.delete(id)
 }
