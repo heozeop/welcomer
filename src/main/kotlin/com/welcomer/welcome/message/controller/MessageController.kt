@@ -1,12 +1,15 @@
 package com.welcomer.welcome.message.controller
 
+import com.welcomer.welcome.message.dto.MessageCreateDTO
+import com.welcomer.welcome.message.dto.MessageDTO
+import com.welcomer.welcome.message.dto.MessageDetailDTO
+import com.welcomer.welcome.message.dto.MessageListDTO
 import com.welcomer.welcome.message.model.Comment
 import com.welcomer.welcome.message.model.Message
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import jakarta.validation.Valid
 import kotlinx.coroutines.runBlocking
-import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -18,7 +21,17 @@ class MessageController (
     @Operation(summary = "Save a new message")
     @ApiResponse(responseCode = "200", description = "Message saved successfully")
     @PostMapping("/")
-    fun saveMessage(@Valid @RequestBody message: Message): Message = runBlocking { messagesService.save(message) }
+    fun saveMessage(@Valid @RequestBody message: MessageCreateDTO): MessageDTO = runBlocking {
+        val response = messagesService.save(message.toMessage())
+
+        MessageDTO(
+            id = response.id,
+            author = response.author,
+            content = response.content,
+            createdAt = response.createdAt.toString(),
+            updatedAt = response.updatedAt.toString()
+        )
+    }
 
     @Operation(summary = "Save a comment for a message")
     @ApiResponse(responseCode = "200", description = "Comment saved successfully")
@@ -31,7 +44,25 @@ class MessageController (
     @Operation(summary = "Get message by ID")
     @ApiResponse(responseCode = "200", description = "Message retrieved successfully")
     @GetMapping("/{id}")
-    fun getMessageById(@PathVariable id: UInt): Message? = runBlocking { messagesService.findById(id) }
+    fun getMessageById(@PathVariable id: UInt): MessageDetailDTO? = runBlocking {
+        val response = messagesService.findByIdForDisplay(id)
+
+        if(response != null) {
+            val (message, commentCount, comments) = response
+
+            MessageDetailDTO(
+                id = message.id ?: 0u,
+                author = message.author,
+                content = message.content,
+                createdAt = message.createdAt.toString(),
+                updatedAt = message.updatedAt.toString(),
+                commentsCount = commentCount,
+                comments = comments
+            )
+        } else {
+            null
+        }
+    }
 
     @Operation(summary = "Get all messages with pagination")
     @ApiResponse(responseCode = "200", description = "Messages retrieved successfully")
@@ -39,7 +70,24 @@ class MessageController (
     fun getMessages(
         @RequestParam(defaultValue = "10") size: Int,
         @RequestParam(defaultValue = "0") cursorId: UInt
-    ): List<Message> = runBlocking { messagesService.find(size, cursorId) }
+    ): MessageListDTO = runBlocking {
+        val (messages, messageCount, commentCountMap ) = messagesService.findForDisplay(size, cursorId)
+
+        MessageListDTO(
+            messages = messages.map {
+                MessageDTO(
+                    id = it.id,
+                    author = it.author,
+                    content = it.content,
+                    createdAt = it.createdAt.toString(),
+                    updatedAt = it.updatedAt.toString(),
+                    commentsCount = commentCountMap[it.id] ?: 0L
+                )
+            },
+            nextCursorId = if (messages.isNotEmpty()) messages.last().id else null,
+            totalCount = messageCount
+        )
+    }
 
     @Operation(summary = "Get total count of messages")
     @ApiResponse(responseCode = "200", description = "Total count of messages retrieved successfully")

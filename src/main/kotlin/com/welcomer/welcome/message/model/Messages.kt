@@ -19,13 +19,13 @@ data class Message(
     val author: String,
     val content: String,
     val createdAt: LocalDateTime?,
-    val updatedAt: LocalDateTime?
+    val updatedAt: LocalDateTime?,
 ) {
     constructor(author: String, content: String) : this(
         null,
         author,
         content,
         LocalDateTime.now(),
-        LocalDateTime.now()
+        LocalDateTime.now(),
     )
 }

@@ -1,6 +1,6 @@
 package com.welcomer.welcome.message.service
 
-import com.welcomer.welcome.message.dto.MessageCreateDTO
+import com.welcomer.welcome.message.model.Comment
 import com.welcomer.welcome.message.model.Message
 import com.welcomer.welcome.message.repository.CommentRepository
 import com.welcomer.welcome.message.repository.MessagesRepository
@@ -16,12 +16,19 @@ class MessagesService(
 ) {
     suspend fun save(message: Message): Message = messagesRepository.save(message)
 
-    suspend fun findById(id: UInt): Message? {
+    suspend fun findByIdForDisplay(id: UInt): Triple<Message, Long,List<Comment>>? {
         val message = messagesRepository.findById(id) ?: return null
-        val commentCount = commentRepository.countMap(listOf(id))[id] ?: 0L
+        val (commentCount, comments) = coroutineScope {
+            val countDef = async(Dispatchers.IO) { commentRepository.countMap(listOf(id))[id] ?: 0L }
+            val commentsDef = async(Dispatchers.IO) { commentRepository.find(id) }
 
-        return message.copy(
-            commentsCount = commentCount,
+            Pair(countDef.await(), commentsDef.await())
+        }
+
+        return Triple(
+            message,
+            commentCount,
+            comments
         )
     }
 
