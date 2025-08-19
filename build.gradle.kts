@@ -60,6 +60,11 @@ dependencies {
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
+    // Kotest for testing
+    testImplementation("io.kotest:kotest-runner-junit5:5.9.0") // kotest 실행기
+    testImplementation("io.kotest:kotest-assertions-core:5.9.0") // 기본 assertion
+    testImplementation("io.kotest.extensions:kotest-extensions-spring:1.3.0")
+
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("com.mysql:mysql-connector-j")
     runtimeOnly("com.h2database:h2")
