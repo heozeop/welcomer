@@ -34,13 +34,19 @@ class MessageService(
 
     suspend fun findForDisplay(size: Int, cursorId: UInt): Triple<List<Message>, Long, Map<UInt, Long>> {
         val (messages, messageCount) = coroutineScope {
-            val messageRequest = async (Dispatchers.IO) { messagesRepository.find(size, cursorId) }
-            val countRequest = async (Dispatchers.IO) { count() }
+            val messageRequest = async(Dispatchers.IO) { messagesRepository.find(size, cursorId) }
+            val countRequest = async(Dispatchers.IO) { count() }
 
             Pair(messageRequest.await(), countRequest.await())
         }
 
-        val commentCountMap = commentRepository.countMap(messages.mapNotNull { it.id })
+        var commentCountMap = commentRepository.countMap(messages.mapNotNull { it.id })
+        if(commentCountMap.isEmpty()){
+            commentCountMap = messages.fold(mutableMapOf()) { acc, message ->
+                acc[message.id ?: 0u] = 0L
+                acc
+            }
+        }
 
         return Triple(messages, messageCount, commentCountMap)
     }
