@@ -43,6 +43,7 @@ class CommentRepository {
     suspend fun countMap(messageIds: List<UInt>): Map<UInt, Long> = transaction {
         Comments.select(Comments.messageId, Comments.id.count())
             .where { Comments.messageId inList messageIds }
+            .groupBy(Comments.messageId)
             .fold(mutableMapOf()) { acc, row ->
                 val messageId = row[Comments.messageId]
                 val count = row[Comments.id.count()]
