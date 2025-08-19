@@ -17,14 +17,12 @@ object Comments : Table("comments") {
 
 data class Comment(
     val id: UInt?,
-    val messageId: UInt?,
     val author: String,
     val content: String,
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?
 ) {
     constructor(author: String, content: String) : this(
-        null,
         null,
         author,
         content,

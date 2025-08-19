@@ -70,7 +70,6 @@ class CommentRepository {
     private fun rowToComment(row: org.jetbrains.exposed.sql.ResultRow): Comment {
         return Comment(
             id = row[Comments.id],
-            messageId = row[Comments.messageId],
             author = row[Comments.author],
             content = row[Comments.content],
             createdAt = row[Comments.createdAt].toLocalDateTime(),
