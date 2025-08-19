@@ -7,19 +7,26 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Repository
+import java.time.LocalDateTime
 import java.time.ZoneOffset
 
 @Repository
 class MessagesRepository {
     fun save(message: Message):Message {
-        val id = transaction {
+        val item = transaction {
             Messages.insert {
                 it[author] = message.author
                 it[content] = message.content
+                it[createdAt] = (message.createdAt ?: LocalDateTime.now()).toInstant(ZoneOffset.UTC)
+                it[updatedAt] = (message.updatedAt ?: LocalDateTime.now()).toInstant(ZoneOffset.UTC)
             }
-        } get Messages.id
+        }
 
-        return message.copy(id = id)
+        return message.copy(
+            id = item[Messages.id],
+            createdAt = item[Messages.createdAt].toLocalDateTime(),
+            updatedAt = item[Messages.updatedAt].toLocalDateTime()
+        )
     }
 
     fun findById(id: UInt): Message? = transaction {
@@ -46,7 +53,7 @@ class MessagesRepository {
             val affectedRows: Int = Messages.update({ Messages.id eq message.id!! }) {
                 it[author] = message.author
                 it[content] = message.content
-                it[updatedAt] = message.updatedAt.toInstant(ZoneOffset.UTC)
+                it[updatedAt] = LocalDateTime.now().toInstant(ZoneOffset.UTC)
             }
 
             affectedRows > 0

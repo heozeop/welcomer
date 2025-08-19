@@ -18,8 +18,8 @@ data class Message(
     val id: UInt?,
     val author: String,
     val content: String,
-    val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime
+    val createdAt: LocalDateTime?,
+    val updatedAt: LocalDateTime?
 ) {
     constructor(author: String, content: String) : this(
         null,
