@@ -60,6 +60,9 @@ dependencies {
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
+    // uuid v7용
+    implementation("com.fasterxml.uuid:java-uuid-generator:5.0.0")
+
     // Kotest for testing
     testImplementation("io.kotest:kotest-runner-junit5:5.9.0") // kotest 실행기
     testImplementation("io.kotest:kotest-assertions-core:5.9.0") // 기본 assertion
