@@ -8,14 +8,14 @@ import org.springframework.stereotype.Service
 class CommentService(
     private val commentRepository: CommentRepository
 ) {
-    suspend fun save(comment: Comment) = commentRepository.save(comment)
+    suspend fun save(messageId: UInt, comment: Comment) = commentRepository.save(messageId, comment)
 
     suspend fun find(messageId: UInt, size: Int = 10, cursorId: UInt = 0u) =
         commentRepository.find(messageId, size, cursorId)
 
     suspend fun count(messageId: UInt) = commentRepository.count(messageId)
 
-    suspend fun update(comment: Comment) = commentRepository.update(comment)
+    suspend fun update(messageId: UInt, commentId: UInt, comment: Comment) = commentRepository.update(messageId, commentId, comment)
 
-    suspend fun delete(id: UInt) = commentRepository.delete(id)
+    suspend fun delete(messageId: UInt, commentId: UInt) = commentRepository.delete(messageId, commentId)
 }

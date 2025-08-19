@@ -15,10 +15,10 @@ import java.time.ZoneOffset
 
 @Repository
 class CommentRepository {
-    suspend fun save(comment: Comment): Comment {
+    suspend fun save(messageId: UInt, comment: Comment): Comment {
         val item = transaction {
             Comments.insert {
-                it[messageId] = comment.messageId
+                it[this.messageId] = messageId
                 it[author] = comment.author
                 it[content] = comment.content
                 it[createdAt] = (comment.createdAt ?: LocalDateTime.now()).toInstant(ZoneOffset.UTC)
@@ -33,15 +33,14 @@ class CommentRepository {
         )
     }
 
-    suspend fun find(messageId: UInt, size: Int = 10, cursorId: UInt = 0u): Comment? = transaction {
-        Comments.select(Comments.id, Comments.messageId, Comments.author, Comments.content, Comments.createdAt, Comments.updatedAt)
+    suspend fun find(messageId: UInt, size: Int = 10, cursorId: UInt = 0u): List<Comment> = transaction {
+        Comments.select(Comments.id, Comments.author, Comments.content, Comments.createdAt, Comments.updatedAt)
             .where {
                 (Comments.id greater  cursorId) and
                 (Comments.messageId eq messageId)
             }
             .limit(size)
             .mapNotNull { rowToComment(it) }
-            .singleOrNull()
     }
 
     suspend fun count(messageId: UInt): Long = transaction {
@@ -50,9 +49,8 @@ class CommentRepository {
             .count()
     }
 
-    suspend fun update(comment: Comment): Boolean = transaction {
-        val affectedRows: Int = Comments.update({ Comments.id eq comment.id!! }) {
-            it[messageId] = comment.messageId
+    suspend fun update(messageId: UInt, commentId: UInt, comment: Comment): Boolean = transaction {
+        val affectedRows: Int = Comments.update({ (Comments.id eq commentId) and (Comments.messageId eq messageId) }) {
             it[author] = comment.author
             it[content] = comment.content
             it[updatedAt] = LocalDateTime.now().toInstant(ZoneOffset.UTC)
@@ -61,8 +59,10 @@ class CommentRepository {
         affectedRows > 0
     }
 
-    suspend fun delete(id: UInt): Boolean = transaction {
-        val affectedRows: Int = Comments.deleteWhere { Comments.id eq id }
+    suspend fun delete(messageId: UInt, commentId: UInt): Boolean = transaction {
+        val affectedRows: Int = Comments.deleteWhere {
+            (id eq commentId) and (Comments.messageId eq messageId)
+        }
 
         affectedRows > 0
     }
