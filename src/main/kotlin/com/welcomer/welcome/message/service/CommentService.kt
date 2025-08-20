@@ -18,6 +18,9 @@ class CommentService(
         return list[messageId] ?: 0L
     }
 
+    suspend fun search(query: String, cursorId: UInt = 0u, size: Int = 10) =
+        commentRepository.search(query, cursorId, size)
+
     suspend fun update(messageId: UInt, commentId: UInt, comment: Comment) = commentRepository.update(messageId, commentId, comment)
 
     suspend fun delete(messageId: UInt, commentId: UInt) = commentRepository.delete(messageId, commentId)

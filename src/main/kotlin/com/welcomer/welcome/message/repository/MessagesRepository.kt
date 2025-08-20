@@ -64,6 +64,14 @@ class MessagesRepository {
         affectedRows > 0
     }
 
+    suspend fun search(query: String, cursorId: UInt, size: Int): List<Message> = transaction {
+        Messages.selectAll()
+            .where { (Messages.id greater cursorId) and (Messages.content like "%$query%") }
+            .limit(size)
+            .orderBy(Messages.id to SortOrder.DESC)
+            .map { rowToMessage(it) }
+    }
+
     private fun rowToMessage(row: ResultRow): Message {
         return Message(
             id = row[Messages.id],

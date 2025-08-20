@@ -40,6 +40,16 @@ class CommentRepository {
             .mapNotNull { rowToComment(it) }
     }
 
+    suspend fun search(query: String, cursorId: UInt = 0u, size: Int = 10): List<Comment> = transaction {
+        Comments.select(Comments.id, Comments.author, Comments.content, Comments.createdAt, Comments.updatedAt)
+            .where {
+                (Comments.id greater cursorId) and
+                (Comments.content like "%$query%")
+            }
+            .limit(size)
+            .mapNotNull { rowToComment(it) }
+    }
+
     suspend fun countMap(messageIds: List<UInt>): Map<UInt, Long> = transaction {
         Comments.select(Comments.messageId, Comments.id.count())
             .where { Comments.messageId inList messageIds }

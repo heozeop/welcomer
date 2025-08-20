@@ -51,6 +51,8 @@ class MessageService(
         return Triple(messages, messageCount, commentCountMap)
     }
 
+    suspend fun search(query: String, cursorId: UInt, size: Int): List<Message> = messagesRepository.search(query, cursorId, size)
+
     suspend fun count(): Long = messagesRepository.count()
 
     suspend fun update(message: Message): Boolean = messagesRepository.update(message)
