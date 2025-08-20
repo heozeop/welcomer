@@ -25,7 +25,10 @@ class RedisCursorService(
     override fun createCursor(types: List<SearchType>, state: CursorStatus, ttl: Duration): String {
         val cursorId = CursorKeys.newCursorId()
         val key = CursorKeys.key(cursorId, types)
-        redis.opsForValue().set(key, mapper.writeValueAsString(state), CursorKeys.withJitter(ttl).toLong(DurationUnit.SECONDS))
+        val value = mapper.writeValueAsString(state)
+
+        println(value)
+        redis.opsForValue().set(key, value, CursorKeys.withJitter(ttl).toLong(DurationUnit.SECONDS))
 
         return cursorId
     }
@@ -33,7 +36,7 @@ class RedisCursorService(
     override fun getCursor(types: List<SearchType>, cursorId: String): CursorStatus? {
         val key = CursorKeys.key(cursorId, types)
         val value = redis.opsForValue().get(key) ?: return null
-        return mapper.readValue(value, CursorStatus::class.java)
+        return mapper.readValue(sanitize(value), CursorStatus::class.java)
     }
 
     override fun updateCursor(types: List<SearchType>, cursorId: String, state: CursorStatus): Boolean {
@@ -51,4 +54,11 @@ class RedisCursorService(
         return redis.hasKey(key) ?: false
     }
 
+    fun sanitize(jsonish: String): String {
+        val start = jsonish.indexOf('{')
+        require(start >= 0) { "JSON '{' not found" }
+        val end = jsonish.lastIndexOf('}')
+        require(end >= start) { "JSON '}' not found" }
+        return jsonish.substring(start, end + 1)
+    }
 }

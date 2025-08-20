@@ -59,9 +59,9 @@ class SearchService(
 
         val pq = PriorityQueue(
 
-            compareByDescending<SearchItemDTO> { it.createdAt }
-                .thenByDescending { it.updatedAt }
-                .thenByDescending { it.id }
+            compareBy<SearchItemDTO> { it.createdAt }
+                .thenBy { it.updatedAt }
+                .thenBy { it.id }
         )
 
         pq.addAll(
