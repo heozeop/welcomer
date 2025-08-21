@@ -9,7 +9,7 @@ import com.welcomer.welcome.message.dto.SearchResultDTO
 import com.welcomer.welcome.message.dto.SearchType
 import com.welcomer.welcome.message.model.Comment
 import com.welcomer.welcome.message.model.Message
-import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.*
 import org.jboss.logging.Messages
 import org.springframework.stereotype.Service
 import java.util.*
@@ -41,20 +41,33 @@ class SearchService(
                 )
             }
 
-        val (messages: List<Message>, comments: List<Comment>) = supervisorScope {
-            val messageDeferred = if (SearchType.MESSAGE in types) {
-                messageService.search(query, cursorStatus.sources[SearchType.MESSAGE.name] ?: 0u, size)
-            } else {
-                emptyList<Message>()
-            }
+        val (messages: List<Message>, comments: List<Comment>) = withContext(Dispatchers.IO) {
+            supervisorScope {
+                val messageDeferred = async {
+                    if (SearchType.MESSAGE in types) {
+                        messageService.search(query, cursorStatus.sources[SearchType.MESSAGE.name] ?: 0u, size)
+                    } else {
+                        emptyList<Message>()
+                    }
+                }
 
-            val commentDeferred = if (SearchType.COMMENT in types) {
-                commentService.search(query, cursorStatus.sources[SearchType.COMMENT.name] ?: 0u, size)
-            } else {
-                emptyList<Comment>()
-            }
+                val commentDeferred = async {
+                    if (SearchType.COMMENT in types) {
+                        commentService.search(query, cursorStatus.sources[SearchType.COMMENT.name] ?: 0u, size)
+                    } else {
+                        emptyList<Comment>()
+                    }
+                }
 
-            messageDeferred to commentDeferred
+                val messages = runCatching { messageDeferred.await() }.getOrElse {
+                    emptyList<Message>()
+                }
+                val comments = runCatching { commentDeferred.await() }.getOrElse {
+                    emptyList<Comment>()
+                }
+
+                messages to comments
+            }
         }
 
         val pq = PriorityQueue(
